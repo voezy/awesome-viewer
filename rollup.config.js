@@ -1,6 +1,10 @@
 import svelte from 'rollup-plugin-svelte';
 import resolve from '@rollup/plugin-node-resolve';
+import autoPreprocess from 'svelte-preprocess';
+import typescript from '@rollup/plugin-typescript';
+import css from 'rollup-plugin-css-only';
 import pkg from './package.json';
+
 
 const name = pkg.name
 	.replace(/^(@\S+\/)?(svelte-)?(\S+)/, '$3')
@@ -8,13 +12,17 @@ const name = pkg.name
 	.replace(/-\w/g, m => m[1].toUpperCase());
 
 export default {
-	input: 'src/index.js',
+	input: 'src/index.ts',
 	output: [
-		{ file: pkg.module, 'format': 'es' },
-		{ file: pkg.main, 'format': 'umd', name }
+		{ file: pkg.module, 'format': 'es', sourcemap: true },
+		{ file: pkg.main, 'format': 'umd', name, sourcemap: true }
 	],
 	plugins: [
-		svelte(),
+		svelte({
+      preprocess: autoPreprocess()
+    }),
+		css({ output: 'bundle.css' }),
+    typescript({ sourceMap: !process.env.production }),
 		resolve()
 	]
 };
