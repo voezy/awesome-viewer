@@ -4,15 +4,21 @@
   "module": "dist/index.mjs",
   "main": "dist/index.js",
   "scripts": {
-    "build": "rimraf dist && rollup -c",
-    "prepublishOnly": "npm run build"
+    "build": "npm run lint && rimraf dist && rollup -c",
+    "prepublishOnly": "npm run build",
+    "lint": "eslint './src/**/*.{js,ts,svelte}'"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^9.0.0",
-    "commitizen": "^4.2.4",
-    "cz-conventional-changelog": "^3.3.0",
     "@rollup/plugin-typescript": "^8.3.1",
     "@tsconfig/svelte": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.18.0",
+    "@typescript-eslint/parser": "^5.18.0",
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-sonarjs": "^0.13.0",
+    "eslint-plugin-svelte3": "^3.4.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.0.0",
     "rollup-plugin-css-only": "^3.1.0",

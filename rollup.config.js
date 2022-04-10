@@ -22,7 +22,9 @@ export default {
       preprocess: autoPreprocess()
     }),
 		css({ output: 'bundle.css' }),
-    typescript({ sourceMap: !process.env.production }),
+    typescript({
+      sourceMap: !process.env.production
+    }),
 		resolve()
 	]
 };
