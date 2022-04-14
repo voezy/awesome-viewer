@@ -30,6 +30,11 @@ module.exports = {
     'no-trailing-spaces': 'error',
     semi: ['error', 'always'],
     quotes: ['error', 'single'],
+
+    'no-console': [
+      'error',
+      { 'allow': ['info', 'warn', 'error', 'time', 'timeEnd'] }
+    ],
   },
   overrides: [
     {

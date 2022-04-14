@@ -21,7 +21,7 @@
 <Story
   name="basic"
   args={{
-    src: '//liveimages.videocc.net/uploadimage/20220331/live-watch_854934_16487419557331.jpeg',
+    src: 'https://via.placeholder.com/4000x2000',
     scaleRate: 1
   }}
 />
