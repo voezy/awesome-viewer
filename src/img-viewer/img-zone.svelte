@@ -26,7 +26,7 @@
   });
 
   function init() {
-    if (imgEl.complete) {
+    if (imgEl?.complete) {
       imgLoaded = true;
       initImgData();
     }
@@ -68,6 +68,9 @@
       } else {
         limitHeight();
       }
+    } else {
+      basicWidth = imgEl.clientWidth;
+      basicHeight = imgEl.clientHeight;
     }
   }
 
@@ -160,9 +163,9 @@
   .as-img-viewer-zone__img {
     display: inline-block;
     vertical-align: middle;
-    cursor: pointer;
+    cursor: grab;
     &:active {
-      cursor: move;
+      cursor: grabbing;
     }
   }
 </style>

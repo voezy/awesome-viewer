@@ -2,6 +2,8 @@
   import { createEventDispatcher } from 'svelte';
   import './assets/fonts/remixicon.css';
   export let scaleRate = 1;
+  export let allowZoomIn = true;
+  export let allowZoomOut = true;
 
   const dispatch = createEventDispatcher();
 
@@ -19,9 +21,9 @@
     dispatch('recover');
   }
   
-  function onClickRotate() {
-    dispatch('rotate');
-  }
+  // function onClickRotate() {
+  //   dispatch('rotate');
+  // }
 
   function onClickDownload() {
     dispatch('download');
@@ -31,9 +33,10 @@
 <div class="as-img-viewer-toolbar">
   <button
     class="as-reset-btn as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
-    on:click={onClickZoomIn}
+    class:as-img-viewer-toolbar__btn--disabled={!allowZoomOut}
+    on:click={onClickZoomOut}
   >
-    <i class="ri-zoom-in-line"></i>
+    <i class="ri-zoom-out-line"></i>
   </button>
   <div
     class="as-img-viewer-toolbar__tool as-img-viewer-toolbar__percent"
@@ -43,16 +46,17 @@
   </div>
   <button
     class="as-reset-btn as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
-    on:click={onClickZoomOut}
+    class:as-img-viewer-toolbar__btn--disabled={!allowZoomIn}
+    on:click={onClickZoomIn}
   >
-    <i class="ri-zoom-out-line"></i>
+    <i class="ri-zoom-in-line"></i>
   </button>
-  <button
+  <!-- <button
     class="as-reset-btn as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
     on:click={onClickRotate}
   >
     <i class="ri-clockwise-line"></i>
-  </button>
+  </button> -->
   <button
     class="as-reset-btn as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
     on:click={onClickDownload}
@@ -90,6 +94,10 @@
   .as-img-viewer-toolbar__btn {
     background: transparent;
     font-size: 18px;
+    &--disabled:hover {
+      cursor: not-allowed;
+      color: rgba(#fff, 0.8);
+    }
   }
   .as-img-viewer-toolbar__percent {
     font-size: 14px;
