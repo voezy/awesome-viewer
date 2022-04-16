@@ -2,6 +2,7 @@
   import { onMount, tick } from 'svelte';
   export let src = '';
   export let scaleRate = 1;
+  export let rotateDeg = 0;
 
   let imgLoaded = false;
   let zoneEl: HTMLElement;
@@ -10,14 +11,49 @@
   let originalHeight: number;
   let basicWidth: number;
   let basicHeight: number;
+  let visualWidth: number;
+  let visualHeight: number;
   let lastPageX: number;
   let lastPageY: number;
   let isDragging = false;
+  let imgStyle = '';
 
-  $: visualWidth = basicWidth && scaleRate > 0 ? basicWidth * scaleRate : null;
-  $: visualHeight = basicHeight && scaleRate > 0 ? basicHeight * scaleRate : null;
+  $: isReverseDirection = rotateDeg  === 90 || rotateDeg === 270;
+  $: {
+    if (!scaleRate || scaleRate < 0) {
+      visualWidth = basicWidth;
+      visualHeight = basicHeight;
+    } else if (!rotateDeg) {
+      visualWidth = basicWidth * scaleRate;
+      visualHeight = basicHeight * scaleRate;
+    } else {
+      visualWidth = isReverseDirection ? basicHeight * scaleRate : basicWidth * scaleRate;
+      visualHeight = isReverseDirection ? basicWidth * scaleRate : basicHeight * scaleRate;
+    }
+  }
   $: if (visualWidth && visualHeight) {
     void centralizeImg();
+  }
+  $: {
+    if (rotateDeg) {
+      const width = isReverseDirection ? visualHeight : visualWidth;
+      const height = isReverseDirection ? visualWidth : visualHeight;
+      const marginTop = -height/2;
+      const marginLeft =  -width/2;
+      imgStyle = `
+        width: ${width}px;
+        height: ${height}px;
+        transform: rotate(${rotateDeg}deg);
+        transform-origin: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: ${marginTop}px;
+        margin-left: ${marginLeft}px;
+      `;
+    } else {
+      imgStyle = '';
+    }
   }
 
   onMount(async () => {
@@ -132,17 +168,22 @@
 
 <div bind:this={zoneEl} class="as-img-viewer-zone" on:mouseleave={onMouseLeaveZone}>
   {#if src }
-    <img
-      bind:this={imgEl}
-      class="as-img-viewer-zone__img"
-      alt="The preview img"
-      src={src}
+    <div
+      class="as-img-viewer-zone__img-wrap"
       style="width: {visualWidth}px; height: {visualHeight}px; opacity: {imgLoaded ? 1 : 0}"
-      on:load={onLoaded}
-      on:mousedown={onMouseDown}
-      on:mousemove={onMouseMove}
-      on:mouseup={onMouseUp}
-    />
+    >
+        <img
+        bind:this={imgEl}
+        class="as-img-viewer-zone__img"
+        alt="The preview img"
+        src={src}
+        style={imgStyle}
+        on:load={onLoaded}
+        on:mousedown={onMouseDown}
+        on:mousemove={onMouseMove}
+        on:mouseup={onMouseUp}
+      />
+    </div>
   {/if}
   <div class="as-img-viewer-zone__height"></div>
 </div>
@@ -160,9 +201,15 @@
     height: 100%;
     vertical-align: middle;
   }
-  .as-img-viewer-zone__img {
+  .as-img-viewer-zone__img-wrap {
+    position: relative;
     display: inline-block;
     vertical-align: middle;
+  }
+  .as-img-viewer-zone__img {
+    width: 100%;
+    height: 100%;
+    display: block;
     cursor: grab;
     &:active {
       cursor: grabbing;

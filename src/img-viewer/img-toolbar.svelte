@@ -21,9 +21,9 @@
     dispatch('recover');
   }
   
-  // function onClickRotate() {
-  //   dispatch('rotate');
-  // }
+  function onClickRotate() {
+    dispatch('rotate');
+  }
 
   function onClickDownload() {
     dispatch('download');
@@ -51,12 +51,12 @@
   >
     <i class="ri-zoom-in-line"></i>
   </button>
-  <!-- <button
+  <button
     class="as-reset-btn as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
     on:click={onClickRotate}
   >
     <i class="ri-clockwise-line"></i>
-  </button> -->
+  </button>
   <button
     class="as-reset-btn as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
     on:click={onClickDownload}
