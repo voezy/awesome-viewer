@@ -1,6 +1,6 @@
 <script>
   import { Meta, Template, Story } from "@storybook/addon-svelte-csf";
-  import ImgZone from '../../src/img-viewer/img-zone.svelte';
+  import ImgZone from '../../src/img-viewer/components/img-zone.svelte';
 </script>
 
 <Meta

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import './assets/fonts/remixicon.css';
+  import '../../assets/fonts/remixicon.css';
   export let scaleRate = 1;
   export let allowZoomIn = true;
   export let allowZoomOut = true;
@@ -66,7 +66,7 @@
 </div>
 
 <style lang="scss">
-  @import '../assets/styles/reset.scss';
+  @import '../../assets/styles/reset.scss';
 
   .as-img-viewer-toolbar {
     display: inline-block;

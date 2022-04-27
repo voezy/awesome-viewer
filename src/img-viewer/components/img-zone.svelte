@@ -7,12 +7,12 @@
   let imgLoaded = false;
   let zoneEl: HTMLElement;
   let imgEl: HTMLImageElement;
-  let originalWidth: number;
-  let originalHeight: number;
-  let basicWidth: number;
-  let basicHeight: number;
-  let visualWidth: number;
-  let visualHeight: number;
+  let originalWidth: number | null;
+  let originalHeight: number | null;
+  let basicWidth: number | null;
+  let basicHeight: number | null;
+  let visualWidth: number | null;
+  let visualHeight: number | null;
   let lastPageX: number;
   let lastPageY: number;
   let isDragging = false;
@@ -20,15 +20,8 @@
 
   $: isReverseDirection = rotateDeg  === 90 || rotateDeg === 270;
   $: {
-    if (!scaleRate || scaleRate < 0) {
-      visualWidth = basicWidth;
-      visualHeight = basicHeight;
-    } else if (!rotateDeg) {
-      visualWidth = basicWidth * scaleRate;
-      visualHeight = basicHeight * scaleRate;
-    } else {
-      visualWidth = isReverseDirection ? basicHeight * scaleRate : basicWidth * scaleRate;
-      visualHeight = isReverseDirection ? basicWidth * scaleRate : basicHeight * scaleRate;
+    if (typeof scaleRate !== 'undefined' || typeof rotateDeg !== 'undefined') {
+      updateVisualSize();
     }
   }
   $: if (visualWidth && visualHeight) {
@@ -61,31 +54,43 @@
     init();
   });
 
-  function init() {
+  export async function init() {
+    clearData();
+    imgLoaded = false;
+    await tick();
     if (imgEl?.complete) {
       imgLoaded = true;
       initImgData();
     }
   }
 
+  function clearData() {
+    basicWidth = null;
+    basicHeight = null;
+    originalWidth = null
+    originalHeight = null;
+    visualHeight = null;
+  }
+
   function initImgData() {
     originalWidth = imgEl.width;
     originalHeight = imgEl.height;
     initImgSize();
+    updateVisualSize();
   }
 
   function limitWidth() {
     if (!imgEl || !zoneEl) { return; }
     const margin = zoneEl.clientWidth * 0.2;
     basicWidth = zoneEl.clientWidth - margin * 2;
-    basicHeight = basicWidth * (originalHeight / originalWidth);
+    basicHeight = basicWidth * (originalHeight as number / (originalWidth as number));
   }
 
   function limitHeight() {
     if (!imgEl || !zoneEl) { return; }
     const margin = zoneEl.clientHeight * 0.2;
     basicHeight = zoneEl.clientHeight - margin * 2;
-    basicWidth = basicHeight * (originalWidth / originalHeight);
+    basicWidth = basicHeight * (originalWidth as number / (originalHeight as number));
   }
 
   function initImgSize() {
@@ -107,6 +112,19 @@
     } else {
       basicWidth = imgEl.clientWidth;
       basicHeight = imgEl.clientHeight;
+    }
+  }
+
+  function updateVisualSize() {
+    if (!scaleRate || scaleRate < 0) {
+      visualWidth = basicWidth;
+      visualHeight = basicHeight;
+    } else if (!rotateDeg) {
+      visualWidth = basicWidth as number * scaleRate;
+      visualHeight = basicHeight as number * scaleRate;
+    } else {
+      visualWidth = isReverseDirection ? basicHeight as number * scaleRate : basicWidth as number * scaleRate;
+      visualHeight = isReverseDirection ? basicWidth as number * scaleRate : basicHeight as number * scaleRate;
     }
   }
 
@@ -170,7 +188,7 @@
   {#if src }
     <div
       class="as-img-viewer-zone__img-wrap"
-      style="width: {visualWidth}px; height: {visualHeight}px; opacity: {imgLoaded ? 1 : 0}"
+      style="width: { visualWidth ? `${visualWidth}px` : '' }; height: { visualHeight ? `${visualHeight}px` : ''}; opacity: {imgLoaded ? 1 : 0}"
     >
         <img
         bind:this={imgEl}
@@ -186,10 +204,14 @@
     </div>
   {/if}
   <div class="as-img-viewer-zone__height"></div>
+  <i class="as-img-viewer-zone__load-ico as-abs-center ri-loader-3-line" style="display: { imgLoaded ? 'none' : 'block' }"></i>
 </div>
 
 <style lang="scss">
+  @import '../../assets/styles/basic.scss';
+
   .as-img-viewer-zone {
+    position: relative;
     width: 100%;
     height: 100%;
     text-align: center;
@@ -213,6 +235,22 @@
     cursor: grab;
     &:active {
       cursor: grabbing;
+    }
+  }
+  .as-img-viewer-zone__load-ico {
+    width: 30px;
+    height: 30px;
+    font-size: 30px;
+    color: rgba(#fff, 0.7);
+    animation: 1s as-loading-spin ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes as-loading-spin {
+    0% {
+      transform: rotate(0);
+    }
+    100% {
+      transform: rotate(360deg);
     }
   }
 </style>
