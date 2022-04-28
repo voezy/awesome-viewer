@@ -26,16 +26,23 @@
   });
 </script>
 
-<div bind:this={el} class="as-modal as-fixed-full" style="display: { visible ? 'block' : 'none' }">
-  <div bind:this={container} class="as-modal__container as-abs-full"></div>
+<div bind:this={el} class="as-modal" style="display: { visible ? 'block' : 'none' }">
+  <div bind:this={container} class="as-modal__container"></div>
   <button class="as-modal__close-btn as-reset-btn" on:click={() => dispatch('close')}>
     <i class="ri-close-line"></i>
   </button>
 </div>
 
 <style lang="scss">
-  @import '../../assets/styles/basic.scss';
+  @import '../../assets/styles/mixins.scss';
   @import '../../assets/styles/reset.scss';
+
+  .as-modal {
+    @include as-fixed-full();
+  }
+  .as-modal__container {
+    @include as-abs-full();
+  }
   .as-modal__close-btn {
     position: absolute;
     top: 30px;

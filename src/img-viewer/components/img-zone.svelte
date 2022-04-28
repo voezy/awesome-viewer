@@ -204,11 +204,11 @@
     </div>
   {/if}
   <div class="as-img-viewer-zone__height"></div>
-  <i class="as-img-viewer-zone__load-ico as-abs-center ri-loader-3-line" style="display: { imgLoaded ? 'none' : 'block' }"></i>
+  <i class="as-img-viewer-zone__load-ico ri-loader-3-line" style="display: { imgLoaded ? 'none' : 'block' }"></i>
 </div>
 
 <style lang="scss">
-  @import '../../assets/styles/basic.scss';
+  @import '../../assets/styles/mixins.scss';
 
   .as-img-viewer-zone {
     position: relative;
@@ -238,6 +238,8 @@
     }
   }
   .as-img-viewer-zone__load-ico {
+    @include as-abs-center();
+
     width: 30px;
     height: 30px;
     font-size: 30px;

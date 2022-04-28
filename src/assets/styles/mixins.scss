@@ -1,4 +1,4 @@
-.as-abs-full {
+@mixin as-abs-full {
   position: absolute;
   top: 0;
   left: 0;
@@ -6,7 +6,7 @@
   height: 100%;
 }
 
-.as-fixed-full {
+@mixin as-fixed-full {
   position: fixed;
   top: 0;
   left: 0;
@@ -14,7 +14,7 @@
   height: 100%;
 }
 
-.as-abs-center {
+@mixin as-abs-center {
   position: absolute;
   top: 0;
   left: 0;
