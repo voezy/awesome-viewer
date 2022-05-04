@@ -3,6 +3,15 @@ import type { Writable } from 'svelte/types/runtime/store';
 import type { StateValue } from './store';
 import { Events as ImgEvents } from './events';
 
+export interface TapEventCenterData {
+  x: number;
+  y: number;
+}
+export interface PinchEventData {
+  scale: number;
+  center: TapEventCenterData;
+}
+
 export interface StoreType {
   [key: string]: Writable<unknown>
 }
@@ -22,12 +31,14 @@ export enum BasicStateEnum {
   Src = 'src',
   ScaleRate = 'scaleRate',
   RotateDeg = 'rotateDeg',
+  ScaleCenter = 'scaleCenter',
 }
 
 export interface BasicState {
   [BasicStateEnum.Src]: StateValue<string>;
   [BasicStateEnum.ScaleRate]: StateValue<number>;
   [BasicStateEnum.RotateDeg]: StateValue<number>;
+  [BasicStateEnum.ScaleCenter]: StateValue<TapEventCenterData, null>;
 }
 
 export interface ModuleState {
@@ -46,9 +57,10 @@ export type Unsubscriber = () => void;
 export interface ModuleOptions {
   options: BasicImgViewerOptions;
   getContainer: () => HTMLElement;
-  _store: ImgViewerStore,
+  store: ImgViewerStore,
   eventEmitter: Events;
   Events: typeof ImgEvents;
+  invokeZone: (method: string, ...args: unknown[]) => void
 }
 
 export interface NewableModule {

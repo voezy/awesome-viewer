@@ -26,7 +26,7 @@ export default class ModalContainer implements Module {
   }
 
   get rootStore() {
-    return this.moduleOptions._store;
+    return this.moduleOptions.store;
   }
 
   get rootState() {

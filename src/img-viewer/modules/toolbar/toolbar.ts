@@ -37,7 +37,7 @@ export default class ToolbarModule implements Module {
   }
 
   get rootStore() {
-    return this.moduleOptions._store;
+    return this.moduleOptions.store;
   }
 
   get rootState() {
@@ -45,7 +45,22 @@ export default class ToolbarModule implements Module {
   }
 
   get curScaleIndex() {
-    return scaleRateList.findIndex((target) => target === this.rootState?.scaleRate.value);
+    const curScaleRate = this.rootState?.scaleRate.value;
+    let curScaleRateIndex = -1;
+    scaleRateList.forEach((item, index) => {
+      const prev = scaleRateList[index - 1];
+      const next = scaleRateList[index + 1];
+      if (item === curScaleRate) {
+        curScaleRateIndex = index;
+      }
+      if (typeof prev !== 'undefined' &&
+      typeof next !== 'undefined' &&
+      curScaleRate > prev &&
+      curScaleRate < next) {
+        curScaleRateIndex = index;
+      }
+    });
+    return curScaleRateIndex;
   }
 
   get curRotateIndex() {
@@ -172,14 +187,14 @@ export default class ToolbarModule implements Module {
   onClickZoomIn = () => {
     const nextRate = scaleRateList[this.curScaleIndex + 1];
     if (nextRate) {
-      this.rootState?.scaleRate.set(nextRate);
+      this.rootState?.scaleRate.tweened(nextRate);
     }
   }
 
   onClickZoomOut = () => {
     const prevRate = scaleRateList[this.curScaleIndex - 1];
     if (prevRate) {
-      this.rootState?.scaleRate.set(prevRate);
+      this.rootState?.scaleRate.tweened(prevRate);
     }
   }
 

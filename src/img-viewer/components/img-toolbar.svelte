@@ -7,7 +7,7 @@
 
   const dispatch = createEventDispatcher();
 
-  $: scalePercent = `${ scaleRate * 100 }%`;
+  $: scalePercent = `${ Math.round(scaleRate * 100) }%`;
 
   function onClickZoomIn() {
     dispatch('zoom-in');

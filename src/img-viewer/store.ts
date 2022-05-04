@@ -1,4 +1,7 @@
 import { writable, get } from 'svelte/store';
+import { tweened } from 'svelte/motion';
+import { cubicOut } from 'svelte/easing';
+
 import type { Writable } from 'svelte/store';
 import type { Unsubscriber } from './index.d';
 
@@ -23,6 +26,17 @@ export class StateValue<T> {
 
   subscribe(cb: (value: T) => unknown): Unsubscriber {
     return this._value.subscribe(cb);
+  }
+
+  tweened(value: T) {
+    const tweenedValue = tweened(this.value, {
+      duration: 350,
+      easing: cubicOut
+    });
+    tweenedValue.subscribe(() => {
+      this.set(get(tweenedValue));
+    });
+    void tweenedValue.set(value);
   }
 }
 

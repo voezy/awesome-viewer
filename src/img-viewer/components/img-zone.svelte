@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
+  import type { TapEventCenterData } from '../index.d';
   export let src = '';
   export let scaleRate = 1;
   export let rotateDeg = 0;
+  export let scaleCenter: TapEventCenterData | null;
 
   let imgLoaded = false;
   let zoneEl: HTMLElement;
@@ -18,21 +20,25 @@
   let isDragging = false;
   let imgStyle = '';
 
+  interface PositioningImgParams {
+    customScrollData?: {
+      scrollLeft: number;
+      scrollTop: number;
+    };
+  }
+
   $: isReverseDirection = rotateDeg  === 90 || rotateDeg === 270;
   $: {
     if (typeof scaleRate !== 'undefined' || typeof rotateDeg !== 'undefined') {
       updateVisualSize();
     }
   }
-  $: if (visualWidth && visualHeight) {
-    void centralizeImg();
-  }
   $: {
     if (rotateDeg) {
       const width = isReverseDirection ? visualHeight : visualWidth;
       const height = isReverseDirection ? visualWidth : visualHeight;
-      const marginTop = -height/2;
-      const marginLeft =  -width/2;
+      const marginTop = -(height as number)/2;
+      const marginLeft =  -(width as number)/2;
       imgStyle = `
         width: ${width}px;
         height: ${height}px;
@@ -115,7 +121,12 @@
     }
   }
 
-  function updateVisualSize() {
+  const updateVisualSize = () => {
+    const lastVisualWidth = visualWidth;
+    const lastVisualHeight = visualHeight;
+    const lastScrollLeft = zoneEl?.scrollLeft;
+    const lastScrollTop = zoneEl?.scrollTop;
+
     if (!scaleRate || scaleRate < 0) {
       visualWidth = basicWidth;
       visualHeight = basicHeight;
@@ -126,16 +137,38 @@
       visualWidth = isReverseDirection ? basicHeight as number * scaleRate : basicWidth as number * scaleRate;
       visualHeight = isReverseDirection ? basicWidth as number * scaleRate : basicHeight as number * scaleRate;
     }
-  }
 
-  async function centralizeImg() {
+    let customScrollData;
+    if (scaleCenter && typeof lastVisualWidth === 'number' && typeof lastVisualHeight === 'number') {
+      const centerLeftRate = (lastScrollLeft + scaleCenter.x) / lastVisualWidth;
+      const centerTopRate = (lastScrollTop + scaleCenter.y) / lastVisualHeight;
+      customScrollData = {
+        scrollLeft: centerLeftRate * (visualWidth as number) - scaleCenter.x,
+        scrollTop: centerTopRate * (visualHeight as number) - scaleCenter.y,
+      };
+      scaleCenter = null;
+    }
+
+    positioningImg({ customScrollData });
+  };
+
+  async function positioningImg(params?: PositioningImgParams) {
     if (!imgEl || !zoneEl) { return; }
     await tick();
+    let scrollLeft = 0;
+    let scrollTop = 0;
+    if (params?.customScrollData) {
+      scrollLeft = params.customScrollData.scrollLeft || scrollLeft;
+      scrollTop = params.customScrollData.scrollTop || scrollTop;
+    } else {
+      scrollLeft = (imgEl.clientWidth - zoneEl.clientWidth) / 2;
+      scrollTop = (imgEl.clientHeight - zoneEl.clientHeight) / 2;
+    }
     if (imgEl.clientWidth > zoneEl.clientWidth) {
-      zoneEl.scrollLeft = (imgEl.clientWidth - zoneEl.clientWidth) / 2;
+      zoneEl.scrollLeft = scrollLeft;
     }
     if (imgEl.clientHeight > zoneEl.clientHeight) {
-      zoneEl.scrollTop = (imgEl.clientHeight - zoneEl.clientHeight) / 2;
+      zoneEl.scrollTop = scrollTop;
     }
   }
 

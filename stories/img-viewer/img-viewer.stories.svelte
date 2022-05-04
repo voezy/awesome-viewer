@@ -3,6 +3,10 @@
   import ImgViewer from './img-viewer.svelte';
 </script>
 
+<svelte:head>
+	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+</svelte:head>
+
 <Meta
   title="img-viewer/img-viewer"
   component={ImgViewer}

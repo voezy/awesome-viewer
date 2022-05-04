@@ -12,6 +12,7 @@ import type {
   ImgViewerStore,
   Unsubscriber,
 } from './index.d';
+import type { StateValue } from './store';
 
 export default class BasicImgViewer {
   _options: BasicImgViewerOptions;
@@ -22,7 +23,7 @@ export default class BasicImgViewer {
 
   _eventEmitter: Events | null = new Events();
 
-  _store: ImgViewerStore;
+  store: ImgViewerStore;
 
   _unsubscriber: Unsubscriber[] = [];
 
@@ -32,7 +33,7 @@ export default class BasicImgViewer {
 
   constructor(options: BasicImgViewerOptions) {
     this._options = options;
-    this._store = this.getDefaultStore();
+    this.store = this.getDefaultStore();
   }
 
   getDefaultStore(): ImgViewerStore {
@@ -41,6 +42,7 @@ export default class BasicImgViewer {
         src: createState(''),
         scaleRate: createState(1),
         rotateDeg: createState(0),
+        scaleCenter: createState(null),
       },
       modules: {},
     };
@@ -77,11 +79,11 @@ export default class BasicImgViewer {
 
   _initStore() {
     const optionsState = this._options.imgState || {} as ImgViewerState;
-    const state = this._store.state;
+    const state = this.store.state;
 
     this.updateState(optionsState);
     for (const key in state) {
-      const targetState = state[key as BasicStateEnum];
+      const targetState = state[key as BasicStateEnum] as StateValue<unknown>;
       const unsubscriber = targetState?.subscribe((value: unknown) => {
         this._updateProps({ [key]: value });
       });
@@ -93,17 +95,18 @@ export default class BasicImgViewer {
     this._unsubscriber?.forEach((unsubscriber) => {
       unsubscriber();
     });
-    this._store = this.getDefaultStore();
+    this.store = this.getDefaultStore();
   }
 
   _initComp() {
-    const { src, rotateDeg, scaleRate } = this._store.state;
+    const { src, rotateDeg, scaleRate } = this.store.state;
     this._imgZone = new ImgZone({
       target: this._container as HTMLElement,
       props: {
         src: src.value,
         rotateDeg: rotateDeg.value,
         scaleRate: scaleRate.value,
+        scaleCenter: null,
       }
     });
   }
@@ -122,7 +125,7 @@ export default class BasicImgViewer {
 
   updateState(newState: ImgViewerState) {
     if (!newState) { return; }
-    const state = this._store.state;
+    const state = this.store.state;
     const { src } = newState;
     if (src !== state.src.value) {
       src && state.src.set(src);
@@ -134,6 +137,12 @@ export default class BasicImgViewer {
     this._imgZone?.$set(props);
   }
 
+  invokeZone = (method: string, ...args: unknown[]) => {
+    if (this._imgZone && typeof this._imgZone[method] === 'function') {
+      this._imgZone[method](...args);
+    }
+  }
+
   onInitReady() {
     for (const moduleName in this.modules) {
       const module = this.modules[moduleName];
@@ -142,8 +151,8 @@ export default class BasicImgViewer {
   }
 
   onReceiveRecover = () => {
-    this._store.state.rotateDeg.set(0);
-    this._store.state.scaleRate.set(1);
+    this.store.state.rotateDeg.set(0);
+    this.store.state.scaleRate.tweened(1);
   };
 
   on(eventName: string | symbol, listener: (...args: unknown[]) => void) {
@@ -185,9 +194,10 @@ export default class BasicImgViewer {
     const module = new ModuleClass(name, {
       getContainer: () => this._container as HTMLElement,
       options: this._options,
-      _store: this._store,
-      eventEmitter: this._eventEmitter,
+      store: this.store,
+      eventEmitter: this._eventEmitter as Events,
       Events: this.Events,
+      invokeZone: this.invokeZone,
     }) as Module;
     this.modules[name] = module;
     if (typeof module.proccessOptions === 'function') {
@@ -199,7 +209,7 @@ export default class BasicImgViewer {
       for (const key in defaultState) {
         moduleState[key] = createState(defaultState[key]);
       }
-      this._store.modules[name] = moduleState;
+      this.store.modules[name] = moduleState;
     }
     if (typeof module.extendViewerParams === 'function') {
       const params = module.extendViewerParams();
