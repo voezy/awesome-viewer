@@ -11,6 +11,24 @@ export interface PinchEventData {
   scale: number;
   center: TapEventCenterData;
 }
+export interface DragMoveEventData {
+  start: {
+    x: number;
+    y: number;
+  };
+  current: {
+    x: number;
+    y: number;
+  };
+  direction: {
+    right: boolean;
+    bottom: boolean;
+  };
+  distance: {
+    x: number;
+    y: number;
+  }
+}
 
 export interface StoreType {
   [key: string]: Writable<unknown>

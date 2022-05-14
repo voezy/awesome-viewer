@@ -1,7 +1,11 @@
 import Events from 'events';
 
-interface TouchHandlerOptions {
-  el: HTMLElement
+interface TouchHandlerBaseOptions {
+  preventDefault?: () => boolean;
+}
+
+interface TouchHandlerOptions extends TouchHandlerBaseOptions {
+  el: HTMLElement,
 }
 
 interface TouchInfo {
@@ -12,17 +16,18 @@ interface TouchInfo {
 export class TouchHandler {
   _el: HTMLElement;
 
-  initTouch0: TouchInfo | null = null;
-
-  initTouch1: TouchInfo | null = null;
+  initTouches: TouchInfo[] = [];
 
   _eventEmitter = new Events();
 
   _baseScaleRate = 1;
 
+  _preventDefault = () => false;
+
   constructor(options: TouchHandlerOptions) {
-    const { el } = options;
+    const { el, preventDefault } = options;
     this._el = el;
+    typeof preventDefault === 'function' && (this._preventDefault = preventDefault);
     this.addEvents();
   }
 
@@ -53,16 +58,54 @@ export class TouchHandler {
     this._el.removeEventListener('touchmove', this.onTouchMove);
     this._el.removeEventListener('touchend', this.onTouchEnd);
     this._el.removeEventListener('touchcancel', this.onTouchCancel);
+    this._el.removeEventListener('dblclick', this.onDbClick);
   }
 
   onTouchMove = (e: TouchEvent) => {
+    if (this._preventDefault()) { e.preventDefault(); }
+    if (e.touches?.length < 2) {
+      this.onSingleTouchMove(e);
+    } else {
+      this.onMultiTouchMove(e);
+    }
+  }
+
+  onSingleTouchMove(e: TouchEvent) {
+    if (e.touches?.length !== 1) { return; }
+    const touch = e.touches[0];
+    const [initTouch] = this.initTouches;
+    if (!initTouch) {
+      this.initTouches = [touch];
+      return;
+    }
+    const distance = {
+      x: touch.screenX - initTouch.screenX,
+      y: touch.screenY - initTouch.screenY,
+    };
+    this._eventEmitter.emit('drag', {
+      start: {
+        x: initTouch.screenX,
+        y: initTouch.screenY
+      },
+      current: {
+        x: touch.screenX,
+        y: touch.screenY,
+      },
+      direction: {
+        right: distance.x > 0,
+        bottom: distance.y > 0,
+      },
+      distance,
+    });
+  }
+
+  onMultiTouchMove(e: TouchEvent) {
     if (e.touches?.length < 2) { return; }
     const touch0 = e.touches[0];
     const touch1 = e.touches[1];
-    const { initTouch0, initTouch1 } = this;
+    const [initTouch0, initTouch1] = this.initTouches;
     if (!initTouch0 || !initTouch1) {
-      this.initTouch0 = touch0;
-      this.initTouch1 = touch1;
+      this.initTouches = [touch0, touch1];
       return;
     }
     const curDistance = Math.hypot(touch0.screenX - touch1.screenX, touch0.screenY - touch1.screenY);
@@ -87,22 +130,22 @@ export class TouchHandler {
   }
 
   onTouchEnd = () => {
-    this._eventEmitter.emit('pinchEnd');
+    this._eventEmitter.emit('touchEnd');
     this.initData();
   }
 
-  onDbClick = () => {
+  onDbClick = (e: Event) => {
+    if (this._preventDefault()) { e.preventDefault(); }
     this._eventEmitter.emit('doubleTap');
   }
 
   onTouchCancel = () => {
-    this._eventEmitter.emit('pinchCancel');
+    this._eventEmitter.emit('touchCancel');
     this.initData();
   }
 
   initData = () => {
-    this.initTouch0 = null;
-    this.initTouch1 = null;
+    this.initTouches = [];
   }
 
   destroy() {

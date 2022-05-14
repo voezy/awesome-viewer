@@ -3,7 +3,7 @@
   import './modal.scss';
   import { manager } from '../manager';
   import '../../assets/fonts/remixicon.css';
-  export let visible = true;
+  export let visible = false;
   let el: HTMLElement;
   let container: HTMLElement;
 
@@ -15,6 +15,10 @@
     } else {
       el && manager.hide(el);
     }
+  }
+
+  export function setHidingProgress(opacity = 1) {
+    manager?.setHidingProgress(opacity);
   }
 
   export function getContainer(): HTMLElement {

@@ -40,10 +40,46 @@ export class Manager {
   setMaskVisible(visible: boolean) {
     if (!this.mask) { return; }
     if (visible) {
-      this.mask.style.display = 'block';
+      this.showMask();
     } else {
-      this.mask.style.display = 'none';
+      this.hideMask();
     }
+  }
+
+  showMask() {
+    if (!this.mask) { return; }
+    this.setHidingProgress(0);
+    this.mask.style.display = 'block';
+    this.showMaskAnim();
+  }
+
+  showMaskAnim() {
+    if (!this.mask) { return; }
+    const opacity = Number(this.mask.style.opacity) || 0;
+    if (opacity >= 1) { return; }
+    window.requestAnimationFrame(() => {
+      this.setHidingProgress(opacity + 0.2);
+      this.showMaskAnim();
+    });
+  }
+
+  hideMask() {
+    if (!this.mask) { return; }
+    this.mask.style.display = 'block';
+    this.hideMaskAnim();
+  }
+
+  hideMaskAnim() {
+    if (!this.mask) { return; }
+    const opacity = Number(this.mask.style.opacity) || 0;
+    if (opacity <= 0) {
+      this.mask.style.display = 'none';
+      return;
+    }
+    window.requestAnimationFrame(() => {
+      this.setHidingProgress(opacity - 0.1);
+      this.hideMaskAnim();
+    });
   }
 
   show(el: HTMLElement) {
@@ -61,6 +97,11 @@ export class Manager {
     if (this.visibleModals.length === 0) {
       this.setMaskVisible(false);
     }
+  }
+
+  setHidingProgress(opacity = 1) {
+    if (this.visibleModals?.length > 1) { return; }
+    this.mask && (this.mask.style.opacity = `${opacity}`);
   }
 }
 

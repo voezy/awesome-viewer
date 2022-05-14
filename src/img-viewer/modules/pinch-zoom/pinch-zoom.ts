@@ -36,8 +36,8 @@ export default class ModalContainer implements Module {
   _init() {
     this.touchHandler = new TouchHandler({ el: this.container as HTMLElement });
     this.touchHandler.on('pinch', this.onPinch);
-    this.touchHandler.on('pinchEnd', this.onPinchEnd);
-    this.touchHandler.on('pinchCancel', this.onPinchCancel);
+    this.touchHandler.on('touchEnd', this.onTouchEnd);
+    this.touchHandler.on('touchCancel', this.onTouchCancel);
     this.touchHandler.on('doubleTap', this.onDoubleTap);
   }
 
@@ -46,12 +46,15 @@ export default class ModalContainer implements Module {
   }
 
   onPinch = (data: unknown = {}) => {
-    const { scale, center } = data as PinchEventData;
+    const { center } = data as PinchEventData;
+    let scale = (data  as PinchEventData).scale;
     if (typeof scale !== 'number') {
       return;
     }
-    if (scale < 1 || scale > 5) {
-      return;
+    if (scale < 1) {
+      scale = 1;
+    } else if (scale > 5) {
+      scale = 5;
     }
     this.rootState?.scaleCenter.set(center);
     this.rootState?.scaleRate.set(scale);
@@ -66,18 +69,18 @@ export default class ModalContainer implements Module {
     }
   }
 
-  onPinchEnd = () => {
+  onTouchEnd = () => {
     this.touchHandler && (this.touchHandler.baseScaleRate = this.rootState?.scaleRate.value);
   }
 
-  onPinchCancel = () => {
+  onTouchCancel = () => {
     this.touchHandler && (this.touchHandler.baseScaleRate = this.rootState?.scaleRate.value);
   }
 
   destroy() {
     this.touchHandler?.off('pinch', this.onPinch);
-    this.touchHandler?.off('pinchEnd', this.onPinchEnd);
-    this.touchHandler?.off('pinchCancel', this.onPinchCancel);
+    this.touchHandler?.off('touchEnd', this.onTouchEnd);
+    this.touchHandler?.off('touchCancel', this.onTouchCancel);
     this.touchHandler?.off('doubleTap', this.onDoubleTap);
     this.touchHandler?.destroy();
   }

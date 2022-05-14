@@ -85,17 +85,20 @@
     updateVisualSize();
   }
 
+  function getDefaultMargin() {
+    if (!zoneEl) { return 0; }
+    return zoneEl.clientWidth * 0.1;
+  }
+
   function limitWidth() {
     if (!imgEl || !zoneEl) { return; }
-    const margin = zoneEl.clientWidth * 0.2;
-    basicWidth = zoneEl.clientWidth - margin * 2;
+    basicWidth = zoneEl.clientWidth - getDefaultMargin() * 2;
     basicHeight = basicWidth * (originalHeight as number / (originalWidth as number));
   }
 
   function limitHeight() {
     if (!imgEl || !zoneEl) { return; }
-    const margin = zoneEl.clientHeight * 0.2;
-    basicHeight = zoneEl.clientHeight - margin * 2;
+    basicHeight = zoneEl.clientHeight - getDefaultMargin() * 2;
     basicWidth = basicHeight * (originalWidth as number / (originalHeight as number));
   }
 

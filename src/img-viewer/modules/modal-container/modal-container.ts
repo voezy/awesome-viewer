@@ -1,9 +1,11 @@
 import Modal from '../../../modal/components/modal.svelte';
 import type { StateValue } from '../../store';
+import { TouchHandler } from '../../../assets/utils/touch';
 import type {
   Module,
   ModuleOptions,
   BasicImgViewerOptions,
+  DragMoveEventData
 } from '../../index.d';
 
 interface ModalState {
@@ -18,6 +20,10 @@ export default class ModalContainer implements Module {
   modal: Modal | null = null;
 
   el: HTMLElement | null = null;
+
+  touchHandler: TouchHandler | null = null;
+
+  swipeClosingProgress = 0;
 
   constructor(name: string, options: ModuleOptions) {
     this.name = name;
@@ -51,7 +57,20 @@ export default class ModalContainer implements Module {
   }
 
   onInitReady() {
+    this.initTouchHandler();
     this.subscribeStore();
+  }
+
+  initTouchHandler() {
+    this.touchHandler = new TouchHandler({
+      el: this.el as HTMLElement,
+      preventDefault: () => {
+        return this.rootState.scaleRate.value <= 1;
+      },
+    });
+    this.touchHandler.on('drag', this.onDrag);
+    this.touchHandler.on('touchEnd', this.cancelSwipeHide);
+    this.touchHandler.on('touchCancel', this.cancelSwipeHide);
   }
 
   getDefaultState() {
@@ -98,7 +117,42 @@ export default class ModalContainer implements Module {
     });
   }
 
+  onDrag = (data: unknown) => {
+    if (this.rootState.scaleRate.value > 1) { return; }
+    const { distance } = data as DragMoveEventData;
+    let swipeClosingProgress = Math.abs(distance.y) / (window.screen.availHeight / 4);
+    swipeClosingProgress = swipeClosingProgress > 1 ? 1 : swipeClosingProgress;
+    this.swipeClosingProgress = swipeClosingProgress;
+    this.setHidingProgress();
+  }
+
+  cancelSwipeHide = () => {
+    if (this.swipeClosingProgress === 0) { return; }
+    if (Math.round(this.swipeClosingProgress) === 1) {
+      this.swipeClosingProgress = 0;
+      this.rootState.scaleRate.set(1);
+      this.hide();
+    } else {
+      this.swipeClosingProgress = 0;
+      this.setHidingProgress(true);
+    }
+  }
+
+  setHidingProgress(tweened = false) {
+    const progress = 1 - this.swipeClosingProgress;
+    this.modal?.setHidingProgress(progress);
+    if (tweened) {
+      this.rootState.scaleRate.tweened(progress < 0.5 ? 0.5 : progress);
+    } else {
+      this.rootState.scaleRate.set(progress < 0.5 ? 0.5 : progress);
+    }
+  }
+
   destroy() {
+    this.touchHandler?.off('drag', this.onDrag);
+    this.touchHandler?.off('touchEnd', this.cancelSwipeHide);
+    this.touchHandler?.off('touchCancel', this.cancelSwipeHide);
+    this.touchHandler?.destroy();
     this.modal?.$destroy();
     this.el && document.body.removeChild(this.el);
   }
