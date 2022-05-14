@@ -1,7 +1,7 @@
 import BasicImgViewer from './basic-img-viewer';
 import ToolbarModule from './modules/toolbar/toolbar';
 import ModalContainer from './modules/modal-container/modal-container';
-import PinchZoomModule from './modules/pinch-zoom/pinch-zoom'
+import PinchZoomModule from './modules/pinch-zoom/pinch-zoom';
 import { isSupportTouch } from '../assets/utils/browser';
 import type {
   BasicImgViewerOptions,

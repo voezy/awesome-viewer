@@ -24,6 +24,14 @@ export class TouchHandler {
 
   _preventDefault = () => false;
 
+  _tuochStartTime: null | number = null;
+
+  _isTapping = true;
+
+  _lastTouchEndTime: null | number = null;
+
+  _tapTimer: null | number = null;
+
   constructor(options: TouchHandlerOptions) {
     const { el, preventDefault } = options;
     this._el = el;
@@ -48,6 +56,7 @@ export class TouchHandler {
   }
 
   addEvents() {
+    this._el.addEventListener('touchstart', this.onTouchStart);
     this._el.addEventListener('touchmove', this.onTouchMove);
     this._el.addEventListener('touchend', this.onTouchEnd);
     this._el.addEventListener('touchcancel', this.onTouchCancel);
@@ -55,13 +64,20 @@ export class TouchHandler {
   }
 
   removeEvents() {
+    this._el.removeEventListener('touchstart', this.onTouchStart);
     this._el.removeEventListener('touchmove', this.onTouchMove);
     this._el.removeEventListener('touchend', this.onTouchEnd);
     this._el.removeEventListener('touchcancel', this.onTouchCancel);
     this._el.removeEventListener('dblclick', this.onDbClick);
   }
 
+  onTouchStart = () => {
+    this._isTapping = true;
+    this._tuochStartTime = Date.now();
+  }
+
   onTouchMove = (e: TouchEvent) => {
+    this._isTapping = false;
     if (this._preventDefault()) { e.preventDefault(); }
     if (e.touches?.length < 2) {
       this.onSingleTouchMove(e);
@@ -132,6 +148,27 @@ export class TouchHandler {
   onTouchEnd = () => {
     this._eventEmitter.emit('touchEnd');
     this.initData();
+    const now = Date.now();
+    if (typeof this._tapTimer === 'number') {
+      this.clearTapTimer();
+    } else if (this._isTapping && typeof this._tuochStartTime === 'number' && now - this._tuochStartTime <= 150) {
+      this.initTapTimer();
+    }
+  }
+
+  initTapTimer() {
+    this._tapTimer = window.setTimeout(() => {
+      this._eventEmitter.emit('tap');
+      this._tapTimer = null;
+      this._tuochStartTime = null;
+    }, 100);
+  }
+
+  clearTapTimer() {
+    typeof this._tapTimer === 'number' && window.clearTimeout(this._tapTimer);
+    this._isTapping = false;
+    this._tapTimer = null;
+    this._tuochStartTime = null;
   }
 
   onDbClick = (e: Event) => {

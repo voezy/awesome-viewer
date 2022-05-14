@@ -1,6 +1,7 @@
 import Modal from '../../../modal/components/modal.svelte';
 import type { StateValue } from '../../store';
 import { TouchHandler } from '../../../assets/utils/touch';
+import { isSupportTouch } from '../../../assets/utils/browser';
 import type {
   Module,
   ModuleOptions,
@@ -50,6 +51,7 @@ export default class ModalContainer implements Module {
       target: this.el,
       props: {
         visible: this.moduleState?.visible.value,
+        closeBtnEnabled: !isSupportTouch,
       }
     });
     document.body.appendChild(this.el);
@@ -57,8 +59,10 @@ export default class ModalContainer implements Module {
   }
 
   onInitReady() {
-    this.initTouchHandler();
     this.subscribeStore();
+    if (isSupportTouch) {
+      this.initTouchHandler();
+    }
   }
 
   initTouchHandler() {
@@ -71,6 +75,15 @@ export default class ModalContainer implements Module {
     this.touchHandler.on('drag', this.onDrag);
     this.touchHandler.on('touchEnd', this.cancelSwipeHide);
     this.touchHandler.on('touchCancel', this.cancelSwipeHide);
+    this.touchHandler.on('tap', this.onClickClose);
+  }
+
+  clearTouchHandler() {
+    this.touchHandler?.off('drag', this.onDrag);
+    this.touchHandler?.off('touchEnd', this.cancelSwipeHide);
+    this.touchHandler?.off('touchCancel', this.cancelSwipeHide);
+    this.touchHandler?.off('tap', this.onClickClose);
+    this.touchHandler?.destroy();
   }
 
   getDefaultState() {
@@ -149,10 +162,9 @@ export default class ModalContainer implements Module {
   }
 
   destroy() {
-    this.touchHandler?.off('drag', this.onDrag);
-    this.touchHandler?.off('touchEnd', this.cancelSwipeHide);
-    this.touchHandler?.off('touchCancel', this.cancelSwipeHide);
-    this.touchHandler?.destroy();
+    if (isSupportTouch) {
+      this.clearTouchHandler();
+    }
     this.modal?.$destroy();
     this.el && document.body.removeChild(this.el);
   }

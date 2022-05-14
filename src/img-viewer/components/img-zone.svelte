@@ -6,7 +6,8 @@
   export let rotateDeg = 0;
   export let scaleCenter: TapEventCenterData | null;
 
-  let imgLoaded = false;
+  let isImgLoaded = false;
+  let isImgError = false;
   let zoneEl: HTMLElement;
   let imgEl: HTMLImageElement;
   let originalWidth: number | null;
@@ -62,10 +63,10 @@
 
   export async function init() {
     clearData();
-    imgLoaded = false;
+    isImgLoaded = false;
     await tick();
     if (imgEl?.complete) {
-      imgLoaded = true;
+      isImgLoaded = true;
       initImgData();
     }
   }
@@ -176,8 +177,12 @@
   }
 
   function onLoaded() {
-    imgLoaded = true;
+    isImgLoaded = true;
     initImgData();
+  }
+
+  function onError() {
+    isImgError = true;
   }
 
   function onMouseDown(e: MouseEvent) {
@@ -224,7 +229,12 @@
   {#if src }
     <div
       class="as-img-viewer-zone__img-wrap"
-      style="width: { visualWidth ? `${visualWidth}px` : '' }; height: { visualHeight ? `${visualHeight}px` : ''}; opacity: {imgLoaded ? 1 : 0}"
+      style="
+        width: { visualWidth ? `${visualWidth}px` : '' };
+        height: { visualHeight ? `${visualHeight}px` : ''};
+        opacity: {isImgLoaded ? 1 : 0};
+        display: { isImgError ? 'none' : 'inline-block' }
+      "
     >
         <img
         bind:this={imgEl}
@@ -233,14 +243,19 @@
         src={src}
         style={imgStyle}
         on:load={onLoaded}
+        on:error={onError}
         on:mousedown={onMouseDown}
         on:mousemove={onMouseMove}
         on:mouseup={onMouseUp}
       />
     </div>
   {/if}
+  {#if isImgError}
+    <p class="as-img-viewer-zone__err-tips">Failed to load this image</p>
+  {:else if !isImgLoaded}
+    <i class="as-img-viewer-zone__load-ico ri-loader-3-line"></i>
+  {/if}
   <div class="as-img-viewer-zone__height"></div>
-  <i class="as-img-viewer-zone__load-ico ri-loader-3-line" style="display: { imgLoaded ? 'none' : 'block' }"></i>
 </div>
 
 <style lang="scss">
@@ -282,6 +297,13 @@
     color: rgba(#fff, 0.7);
     animation: 1s as-loading-spin ease-in-out infinite;
     transform-origin: center;
+  }
+  .as-img-viewer-zone__err-tips {
+    @include as-abs-center();
+
+    height: 14px;
+    color: #fff;
+    font-size: 14px;
   }
   @keyframes as-loading-spin {
     0% {

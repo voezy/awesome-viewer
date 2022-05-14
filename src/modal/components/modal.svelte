@@ -4,6 +4,7 @@
   import { manager } from '../manager';
   import '../../assets/fonts/remixicon.css';
   export let visible = false;
+  export let closeBtnEnabled = true;
   let el: HTMLElement;
   let container: HTMLElement;
 
@@ -32,9 +33,11 @@
 
 <div bind:this={el} class="as-modal" style="display: { visible ? 'block' : 'none' }">
   <div bind:this={container} class="as-modal__container"></div>
+  {#if closeBtnEnabled}
   <button class="as-modal__close-btn as-reset-btn" on:click={() => dispatch('close')}>
     <i class="ri-close-line"></i>
   </button>
+  {/if}
 </div>
 
 <style lang="scss">
