@@ -35,10 +35,10 @@ export default class ModalContainer implements Module {
 
   _init() {
     this.touchHandler = new TouchHandler({ el: this.container as HTMLElement });
-    this.touchHandler.on('pinch', this.onPinch);
-    this.touchHandler.on('touchEnd', this.onTouchEnd);
-    this.touchHandler.on('touchCancel', this.onTouchCancel);
-    this.touchHandler.on('doubleTap', this.onDoubleTap);
+    this.touchHandler.on(this.touchHandler.Events.Pinch, this.onPinch);
+    this.touchHandler.on(this.touchHandler.Events.TouchEnd, this.onTouchEnd);
+    this.touchHandler.on(this.touchHandler.Events.TouchCancel, this.onTouchCancel);
+    this.touchHandler.on(this.touchHandler.Events.DoubleTap, this.onDoubleTap);
   }
 
   onInitReady() {
@@ -78,10 +78,10 @@ export default class ModalContainer implements Module {
   }
 
   destroy() {
-    this.touchHandler?.off('pinch', this.onPinch);
-    this.touchHandler?.off('touchEnd', this.onTouchEnd);
-    this.touchHandler?.off('touchCancel', this.onTouchCancel);
-    this.touchHandler?.off('doubleTap', this.onDoubleTap);
+    this.touchHandler?.off(this.touchHandler.Events.Pinch, this.onPinch);
+    this.touchHandler?.off(this.touchHandler.Events.TouchEnd, this.onTouchEnd);
+    this.touchHandler?.off(this.touchHandler.Events.TouchCancel, this.onTouchCancel);
+    this.touchHandler?.off(this.touchHandler.Events.DoubleTap, this.onDoubleTap);
     this.touchHandler?.destroy();
   }
 }

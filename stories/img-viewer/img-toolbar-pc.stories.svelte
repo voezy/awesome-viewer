@@ -1,6 +1,6 @@
 <script>
   import { Meta, Template, Story } from "@storybook/addon-svelte-csf";
-  import ImgToolbar from '../../src/img-viewer/components/img-toolbar.svelte';
+  import ImgToolbar from '../../src/img-viewer/components/img-toolbar-pc.svelte';
 </script>
 
 <Meta
@@ -28,6 +28,6 @@
 </Template>
 
 <Story
-  name="basic"
+  name="pc"
   args={{}}
 />

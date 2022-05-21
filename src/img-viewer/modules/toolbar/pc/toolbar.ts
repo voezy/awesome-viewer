@@ -1,10 +1,10 @@
-import Toolbar from '../../components/img-toolbar.svelte';
-import { download } from '../../../assets/utils/net';
+import Toolbar from '../../../components/img-toolbar-pc.svelte';
+import { download } from '../../../../assets/utils/net';
 import './toolbar.scss';
 import type {
   Module,
   ModuleOptions,
-} from '../../index.d';
+} from '../../../index.d';
 
 const scaleRateList = [1, 1.5, 2, 2.5, 3, 3.5, 4, 5];
 const rotateList = [0, 90, 180, 270];
@@ -199,7 +199,7 @@ export default class ToolbarModule implements Module {
   }
 
   onClickRecover = () => {
-    this.moduleOptions.eventEmitter?.emit(this.moduleOptions.Events.Recover);
+    this.moduleOptions.eventEmitter?.emit(this.moduleOptions.Events.Module_ToRecover);
   }
 
   onClickRotate = () => {

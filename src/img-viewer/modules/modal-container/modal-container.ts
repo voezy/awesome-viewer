@@ -1,6 +1,6 @@
 import Modal from '../../../modal/components/modal.svelte';
 import type { StateValue } from '../../store';
-import { TouchHandler } from '../../../assets/utils/touch';
+import { TouchEvents } from '../../../assets/utils/touch';
 import { isSupportTouch } from '../../../assets/utils/browser';
 import type {
   Module,
@@ -22,7 +22,7 @@ export default class ModalContainer implements Module {
 
   el: HTMLElement | null = null;
 
-  touchHandler: TouchHandler | null = null;
+  // touchHandler: TouchHandler | null = null;
 
   swipeClosingProgress = 0;
 
@@ -56,34 +56,39 @@ export default class ModalContainer implements Module {
     });
     document.body.appendChild(this.el);
     this.initCompEvents();
+    this.initEvents();
   }
 
   onInitReady() {
     this.subscribeStore();
-    if (isSupportTouch) {
-      this.initTouchHandler();
+  }
+
+  initEvents() {
+    this.moduleOptions.eventEmitter?.on(this.moduleOptions.Events.Module_ToClose, this.onClickClose);
+    this.moduleOptions.eventEmitter?.on(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+  }
+
+  clearEvents() {
+    this.moduleOptions.eventEmitter?.off(this.moduleOptions.Events.Module_ToClose, this.onClickClose);
+    this.moduleOptions.eventEmitter?.off(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+  }
+
+  onTouchEvent = (e: unknown) => {
+    const { event, data } = e as { event: string, data: unknown };
+    switch (event) {
+    case TouchEvents.Drag: {
+      this.onDrag(data);
+      break;
     }
-  }
-
-  initTouchHandler() {
-    this.touchHandler = new TouchHandler({
-      el: this.el as HTMLElement,
-      preventDefault: () => {
-        return this.rootState.scaleRate.value <= 1;
-      },
-    });
-    this.touchHandler.on('drag', this.onDrag);
-    this.touchHandler.on('touchEnd', this.cancelSwipeHide);
-    this.touchHandler.on('touchCancel', this.cancelSwipeHide);
-    this.touchHandler.on('tap', this.onClickClose);
-  }
-
-  clearTouchHandler() {
-    this.touchHandler?.off('drag', this.onDrag);
-    this.touchHandler?.off('touchEnd', this.cancelSwipeHide);
-    this.touchHandler?.off('touchCancel', this.cancelSwipeHide);
-    this.touchHandler?.off('tap', this.onClickClose);
-    this.touchHandler?.destroy();
+    case TouchEvents.TouchEnd: {
+      this.cancelSwipeHide();
+      break;
+    }
+    case TouchEvents.TouchCancel: {
+      this.cancelSwipeHide();
+      break;
+    }
+    }
   }
 
   getDefaultState() {
@@ -98,6 +103,7 @@ export default class ModalContainer implements Module {
 
   hide = () => {
     this.moduleState.visible?.set(false);
+    this.rootState.rotateDeg.set(0);
   }
 
   subscribeStore() {
@@ -113,7 +119,7 @@ export default class ModalContainer implements Module {
   }
 
   onClickClose = () => {
-    this.moduleOptions.eventEmitter?.emit(this.moduleOptions.Events.Recover);
+    this.moduleOptions.eventEmitter?.emit(this.moduleOptions.Events.Module_ToRecover);
     this.hide();
   }
 
@@ -121,6 +127,7 @@ export default class ModalContainer implements Module {
     this.modal?.$set({
       visible: !!isVisible,
     });
+    this.moduleOptions.eventEmitter.emit(this.moduleOptions.Events.Closed);
   }
 
   proccessOptions(options: BasicImgViewerOptions) {
@@ -162,9 +169,7 @@ export default class ModalContainer implements Module {
   }
 
   destroy() {
-    if (isSupportTouch) {
-      this.clearTouchHandler();
-    }
+    this.clearEvents();
     this.modal?.$destroy();
     this.el && document.body.removeChild(this.el);
   }

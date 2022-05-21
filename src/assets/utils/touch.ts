@@ -13,7 +13,18 @@ interface TouchInfo {
   screenY: number;
 }
 
+export enum TouchEvents {
+  Drag = 'Drag',
+  Pinch = 'Pinch',
+  TouchEnd = 'TouchEnd',
+  TouchCancel = 'TouchCancel',
+  Tap = 'Tap',
+  DoubleTap = 'DoubleTap',
+}
+
 export class TouchHandler {
+  Events: typeof TouchEvents = TouchEvents;
+
   _el: HTMLElement;
 
   initTouches: TouchInfo[] = [];
@@ -98,7 +109,7 @@ export class TouchHandler {
       x: touch.screenX - initTouch.screenX,
       y: touch.screenY - initTouch.screenY,
     };
-    this._eventEmitter.emit('drag', {
+    this._eventEmitter.emit(this.Events.Drag, {
       start: {
         x: initTouch.screenX,
         y: initTouch.screenY
@@ -136,7 +147,7 @@ export class TouchHandler {
       centerY = touch1.screenY + (touch0.screenY - touch1.screenY) / 2;
       centerX = touch1.screenX + (touch0.screenX - touch1.screenX) / 2;
     }
-    this._eventEmitter.emit('pinch', {
+    this._eventEmitter.emit(this.Events.Pinch, {
       scale: scaleRateDis * this.baseScaleRate,
       center: {
         x: centerX,
@@ -146,7 +157,7 @@ export class TouchHandler {
   }
 
   onTouchEnd = () => {
-    this._eventEmitter.emit('touchEnd');
+    this._eventEmitter.emit(this.Events.TouchEnd);
     this.initData();
     const now = Date.now();
     if (typeof this._tapTimer === 'number') {
@@ -158,7 +169,7 @@ export class TouchHandler {
 
   initTapTimer() {
     this._tapTimer = window.setTimeout(() => {
-      this._eventEmitter.emit('tap');
+      this._eventEmitter.emit(this.Events.Tap);
       this._tapTimer = null;
       this._tuochStartTime = null;
     }, 100);
@@ -173,11 +184,11 @@ export class TouchHandler {
 
   onDbClick = (e: Event) => {
     if (this._preventDefault()) { e.preventDefault(); }
-    this._eventEmitter.emit('doubleTap');
+    this._eventEmitter.emit(this.Events.DoubleTap);
   }
 
   onTouchCancel = () => {
-    this._eventEmitter.emit('touchCancel');
+    this._eventEmitter.emit(this.Events.TouchCancel);
     this.initData();
   }
 

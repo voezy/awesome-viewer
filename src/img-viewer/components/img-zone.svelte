@@ -1,6 +1,9 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { onMount, tick, onDestroy, createEventDispatcher } from 'svelte';
+  import { TouchHandler } from '../../assets/utils/touch';
+  import { isSupportTouch } from '../../assets/utils/browser';
   import type { TapEventCenterData } from '../index.d';
+
   export let src = '';
   export let scaleRate = 1;
   export let rotateDeg = 0;
@@ -20,6 +23,9 @@
   let lastPageY: number;
   let isDragging = false;
   let imgStyle = '';
+  let touchHandler: TouchHandler | null = null;
+  let touchEventHandlers: { [key: string]: (...args: unknown[]) => void } = {};
+  const dispatch = createEventDispatcher();
 
   interface PositioningImgParams {
     customScrollData?: {
@@ -59,6 +65,11 @@
   onMount(async () => {
     await tick();
     init();
+    initTouchHandler();
+  });
+
+  onDestroy(() => {
+    clearTouchHandler();
   });
 
   export async function init() {
@@ -68,6 +79,43 @@
     if (imgEl?.complete) {
       isImgLoaded = true;
       initImgData();
+    }
+  }
+
+  function initTouchHandler() {
+    if (isSupportTouch) {
+      touchHandler =  new TouchHandler({
+        el: zoneEl,
+        preventDefault: () => {
+          return scaleRate <= 1;
+        },
+        baseScaleRate: () => {
+          console.log('baseScaleRate getter', scaleRate);
+          return scaleRate;
+        },
+      });
+      for (const event in touchHandler.Events) {
+        const handler = touchEvenDispatcher(event);
+        touchEventHandlers[event] = handler;
+        touchHandler?.on(event, handler);
+      }
+    }
+  }
+
+  function clearTouchHandler() {
+    for (const event in touchEventHandlers) {
+      const handler = touchEventHandlers[event];
+      touchHandler?.off(event, handler);
+    }
+    touchHandler?.destroy();
+  }
+
+  function touchEvenDispatcher(event: string) {
+    return function(e: unknown) {
+      dispatch('touchEvent', {
+        event,
+        data: e
+      });
     }
   }
 

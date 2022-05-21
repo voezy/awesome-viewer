@@ -51,13 +51,13 @@ export default class BasicImgViewer {
   init() {
     this._initContainer();
     this._initEventEmitter();
-    this._initEvents();
     this._initStore();
     if (!this._container) {
       console.warn('Container element must be set');
       return;
     }
     this._initComp();
+    this._initEvents();
     this.onInitReady();
   }
 
@@ -116,11 +116,12 @@ export default class BasicImgViewer {
   }
 
   _initEvents() {
-    this.on(this.Events.Recover, this.onReceiveRecover);
+    this.on(this.Events.Module_ToRecover, this.onReceiveRecover);
+    this._imgZone?.$on('touchEvent', this._onZoneTouchEvent);
   }
 
   _clearEvents() {
-    this.off(this.Events.Recover, this.onReceiveRecover);
+    this.off(this.Events.Module_ToRecover, this.onReceiveRecover);
   }
 
   updateState(newState: ImgViewerState) {
@@ -148,6 +149,15 @@ export default class BasicImgViewer {
       const module = this.modules[moduleName];
       typeof module.onInitReady === 'function' && (module.onInitReady());
     }
+  }
+
+  _onZoneTouchEvent = (e: unknown) => {
+    const { detail } = e as { detail: unknown };
+    const { event, data } = detail as { event: string, data: unknown };
+    this._eventEmitter?.emit(this.Events.Module_TouchEvent, {
+      event,
+      data
+    });
   }
 
   onReceiveRecover = () => {
