@@ -8,6 +8,10 @@ export enum Events {
   Module_ToClose = 'Module_ToClose',
   // img zone touch events forwarding
   Module_TouchEvent = 'Module_TouchEvent',
+  // To open image information drawer
+  Module_ToOpenInfo = 'Module_ToOpenInfo',
+  // Image data forward
+  Module_ImgData = 'Module_ImgData',
 
   /**
    * img viewer is closed

@@ -34,7 +34,7 @@
 <div bind:this={el} class="as-modal" style="display: { visible ? 'block' : 'none' }">
   <div bind:this={container} class="as-modal__container"></div>
   {#if closeBtnEnabled}
-  <button class="as-modal__close-btn as-reset-btn" on:click={() => dispatch('close')}>
+  <button class="as-modal__close-btn" on:click={() => dispatch('close')}>
     <i class="ri-close-line"></i>
   </button>
   {/if}
@@ -63,5 +63,7 @@
     &:hover {
       color: rgba(255, 255, 255, 0.8);
     }
+
+    @include as-reset-btn();
   }
 </style>

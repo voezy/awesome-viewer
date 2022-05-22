@@ -40,12 +40,12 @@ export default class ToolbarModule implements Module {
     return this.moduleOptions.store;
   }
 
-  get rootState() {
-    return this.rootStore?.state;
+  get zoneState() {
+    return this.rootStore?.zoneState;
   }
 
   get curScaleIndex() {
-    const curScaleRate = this.rootState?.scaleRate.value;
+    const curScaleRate = this.zoneState?.scaleRate.value;
     let curScaleRateIndex = -1;
     scaleRateList.forEach((item, index) => {
       const prev = scaleRateList[index - 1];
@@ -64,7 +64,7 @@ export default class ToolbarModule implements Module {
   }
 
   get curRotateIndex() {
-    return rotateList.findIndex((target) => target === this.rootState?.rotateDeg.value);
+    return rotateList.findIndex((target) => target === this.zoneState?.rotateDeg.value);
   }
 
   get allowZoomIn() {
@@ -106,7 +106,7 @@ export default class ToolbarModule implements Module {
     this.toolbar = new Toolbar({
       target: this.el as HTMLElement,
       props: {
-        scaleRate: this.rootState?.scaleRate?.value,
+        scaleRate: this.zoneState?.scaleRate?.value,
         allowZoomIn: this.allowZoomIn,
         allowZoomOut: this.allowZoomOut,
       },
@@ -119,6 +119,7 @@ export default class ToolbarModule implements Module {
     this.toolbar?.$on('recover', this.onClickRecover);
     this.toolbar?.$on('rotate', this.onClickRotate);
     this.toolbar?.$on('download', this.onClickDownload);
+    this.toolbar?.$on('info', this.onClickInfo);
   }
 
   initContainerEvents() {
@@ -173,7 +174,7 @@ export default class ToolbarModule implements Module {
   }
 
   subscribeStore() {
-    this.rootState?.scaleRate.subscribe(this.onScaleRateChanged);
+    this.zoneState?.scaleRate.subscribe(this.onScaleRateChanged);
   }
 
   onScaleRateChanged = (scaleRate: unknown) => {
@@ -187,14 +188,14 @@ export default class ToolbarModule implements Module {
   onClickZoomIn = () => {
     const nextRate = scaleRateList[this.curScaleIndex + 1];
     if (nextRate) {
-      this.rootState?.scaleRate.tweened(nextRate);
+      this.zoneState?.scaleRate.tweened(nextRate);
     }
   }
 
   onClickZoomOut = () => {
     const prevRate = scaleRateList[this.curScaleIndex - 1];
     if (prevRate) {
-      this.rootState?.scaleRate.tweened(prevRate);
+      this.zoneState?.scaleRate.tweened(prevRate);
     }
   }
 
@@ -205,13 +206,17 @@ export default class ToolbarModule implements Module {
   onClickRotate = () => {
     const nextRotateDeg = rotateList[this.curRotateIndex + 1];
     if (typeof nextRotateDeg === 'number') {
-      this.rootState?.rotateDeg.set(nextRotateDeg);
+      this.zoneState?.rotateDeg.set(nextRotateDeg);
     } else {
-      this.rootState?.rotateDeg.set(rotateList[0]);
+      this.zoneState?.rotateDeg.set(rotateList[0]);
     }
   }
 
   onClickDownload = () => {
-    void download(this.rootState?.src.value);
+    void download(this.zoneState?.src.value);
+  }
+
+  onClickInfo = () => {
+    this.moduleOptions.eventEmitter?.emit(this.moduleOptions.Events.Module_ToOpenInfo);
   }
 }

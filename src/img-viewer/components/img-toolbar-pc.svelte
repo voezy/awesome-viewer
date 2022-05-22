@@ -28,11 +28,15 @@
   function onClickDownload() {
     dispatch('download');
   }
+
+  function onClickInfo() {
+    dispatch('info');
+  }
 </script>
 
 <div class="as-img-viewer-toolbar">
   <button
-    class="as-reset-btn as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
+    class="as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
     class:as-img-viewer-toolbar__btn--disabled={!allowZoomOut}
     on:click={onClickZoomOut}
   >
@@ -45,23 +49,29 @@
     <span>{ scalePercent }</span>
   </div>
   <button
-    class="as-reset-btn as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
+    class="as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
     class:as-img-viewer-toolbar__btn--disabled={!allowZoomIn}
     on:click={onClickZoomIn}
   >
     <i class="ri-zoom-in-line"></i>
   </button>
   <button
-    class="as-reset-btn as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
+    class="as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
     on:click={onClickRotate}
   >
     <i class="ri-clockwise-line"></i>
   </button>
   <button
-    class="as-reset-btn as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
+    class="as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
     on:click={onClickDownload}
   >
     <i class="ri-download-line"></i>
+  </button>
+  <button
+    class="as-img-viewer-toolbar__tool as-img-viewer-toolbar__btn"
+    on:click={onClickInfo}
+  >
+    <i class="ri-information-line"></i>
   </button>
 </div>
 
@@ -90,6 +100,7 @@
     &:hover {
       color: #fff;
     }
+    @include as-reset-btn();
   }
   .as-img-viewer-toolbar__btn {
     background: transparent;

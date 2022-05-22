@@ -24,8 +24,8 @@ export default class ModalContainer implements Module {
     return this.moduleOptions.store;
   }
 
-  get rootState() {
-    return this.rootStore?.state;
+  get zoneState() {
+    return this.rootStore?.zoneState;
   }
 
   get container() {
@@ -56,25 +56,25 @@ export default class ModalContainer implements Module {
     } else if (scale > 5) {
       scale = 5;
     }
-    this.rootState?.scaleCenter.set(center);
-    this.rootState?.scaleRate.set(scale);
+    this.zoneState?.scaleCenter.set(center);
+    this.zoneState?.scaleRate.set(scale);
   }
 
   onDoubleTap = () => {
-    const scaleRate = this.rootState.scaleRate.value;
+    const scaleRate = this.zoneState.scaleRate.value;
     if (scaleRate === 1) {
-      this.rootState.scaleRate.tweened(3);
+      this.zoneState.scaleRate.tweened(3);
     } else {
-      this.rootState.scaleRate.tweened(1);
+      this.zoneState.scaleRate.tweened(1);
     }
   }
 
   onTouchEnd = () => {
-    this.touchHandler && (this.touchHandler.baseScaleRate = this.rootState?.scaleRate.value);
+    this.touchHandler && (this.touchHandler.baseScaleRate = this.zoneState?.scaleRate.value);
   }
 
   onTouchCancel = () => {
-    this.touchHandler && (this.touchHandler.baseScaleRate = this.rootState?.scaleRate.value);
+    this.touchHandler && (this.touchHandler.baseScaleRate = this.zoneState?.scaleRate.value);
   }
 
   destroy() {

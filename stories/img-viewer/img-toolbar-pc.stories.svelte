@@ -28,6 +28,6 @@
 </Template>
 
 <Story
-  name="pc"
+  name="img-toolbar-pc"
   args={{}}
 />

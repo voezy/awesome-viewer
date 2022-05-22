@@ -45,26 +45,38 @@ export interface BasicImgViewerOptions {
   moduleOptions?: { [key: string]: unknown }
 }
 
-export enum BasicStateEnum {
+export enum ZoneStateEnum {
   Src = 'src',
   ScaleRate = 'scaleRate',
   RotateDeg = 'rotateDeg',
   ScaleCenter = 'scaleCenter',
 }
 
-export interface BasicState {
-  [BasicStateEnum.Src]: StateValue<string>;
-  [BasicStateEnum.ScaleRate]: StateValue<number>;
-  [BasicStateEnum.RotateDeg]: StateValue<number>;
-  [BasicStateEnum.ScaleCenter]: StateValue<TapEventCenterData, null>;
+export interface ZoneState {
+  [ZoneStateEnum.Src]: StateValue<string>;
+  [ZoneStateEnum.ScaleRate]: StateValue<number>;
+  [ZoneStateEnum.RotateDeg]: StateValue<number>;
+  [ZoneStateEnum.ScaleCenter]: StateValue<TapEventCenterData, null>;
 }
+
 
 export interface ModuleState {
   [key: string]: StateValue<unknown>
 }
 
+export interface ImgData {
+  width: StateValue<number | null>,
+  height: StateValue<number | null>,
+}
+
+export interface RootState {
+  layerIndex: StateValue<number>,
+}
+
 export interface ImgViewerStore {
-  state: BasicState;
+  zoneState: ZoneState;
+  imgData: ImgData;
+  rootState: RootState;
   modules: {
     [key: string]: ModuleState
   };
@@ -101,4 +113,22 @@ export declare class Module implements NewableModule {
   onInitReady?(): void;
 
   proccessOptions?(options: BasicImgViewerOptions): BasicImgViewerOptions;
+}
+
+
+/**
+ * Interface about information module
+ */
+export interface InfoItem {
+  name: string;
+  value: string;
+  type?: string;
+  link?: string;
+  ico?: string;
+}
+
+export interface InfoSection {
+  title: string;
+  desc?: string;
+  items: InfoItem[];
 }

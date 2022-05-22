@@ -36,8 +36,8 @@ export default class ModalContainer implements Module {
     return this.moduleOptions.store;
   }
 
-  get rootState() {
-    return this.rootStore?.state;
+  get zoneState() {
+    return this.rootStore?.zoneState;
   }
 
   get moduleState(): ModalState {
@@ -61,6 +61,12 @@ export default class ModalContainer implements Module {
 
   onInitReady() {
     this.subscribeStore();
+  }
+
+  getDefaultState() {
+    return {
+      visible: false,
+    };
   }
 
   initEvents() {
@@ -91,19 +97,13 @@ export default class ModalContainer implements Module {
     }
   }
 
-  getDefaultState() {
-    return {
-      visible: false,
-    };
-  }
-
   show = () => {
     this.moduleState.visible?.set(true);
   }
 
   hide = () => {
     this.moduleState.visible?.set(false);
-    this.rootState.rotateDeg.set(0);
+    this.zoneState.rotateDeg.set(0);
   }
 
   subscribeStore() {
@@ -138,7 +138,7 @@ export default class ModalContainer implements Module {
   }
 
   onDrag = (data: unknown) => {
-    if (this.rootState.scaleRate.value > 1) { return; }
+    if (this.zoneState.scaleRate.value > 1) { return; }
     const { distance } = data as DragMoveEventData;
     let swipeClosingProgress = Math.abs(distance.y) / (window.screen.availHeight / 4);
     swipeClosingProgress = swipeClosingProgress > 1 ? 1 : swipeClosingProgress;
@@ -150,7 +150,7 @@ export default class ModalContainer implements Module {
     if (this.swipeClosingProgress === 0) { return; }
     if (Math.round(this.swipeClosingProgress) === 1) {
       this.swipeClosingProgress = 0;
-      this.rootState.scaleRate.set(1);
+      this.zoneState.scaleRate.set(1);
       this.hide();
     } else {
       this.swipeClosingProgress = 0;
@@ -162,9 +162,9 @@ export default class ModalContainer implements Module {
     const progress = 1 - this.swipeClosingProgress;
     this.modal?.setHidingProgress(progress);
     if (tweened) {
-      this.rootState.scaleRate.tweened(progress < 0.5 ? 0.5 : progress);
+      this.zoneState.scaleRate.tweened(progress < 0.5 ? 0.5 : progress);
     } else {
-      this.rootState.scaleRate.set(progress < 0.5 ? 0.5 : progress);
+      this.zoneState.scaleRate.set(progress < 0.5 ? 0.5 : progress);
     }
   }
 

@@ -34,13 +34,13 @@ export default class ToolbarModule implements Module {
     return this.moduleOptions.store;
   }
 
-  get rootState() {
-    return this.rootStore?.state;
+  get zoneState() {
+    return this.rootStore?.zoneState;
   }
 
 
   get curRotateIndex() {
-    return rotateList.findIndex((target) => target === this.rootState?.rotateDeg.value);
+    return rotateList.findIndex((target) => target === this.zoneState?.rotateDeg.value);
   }
 
   get isToolbarShowing() {
@@ -76,7 +76,7 @@ export default class ToolbarModule implements Module {
     this.toolbar = new Toolbar({
       target: this.el as HTMLElement,
       props: {
-        scaleRate: this.rootState?.scaleRate?.value,
+        scaleRate: this.zoneState?.scaleRate?.value,
       },
     });
   }
@@ -84,6 +84,7 @@ export default class ToolbarModule implements Module {
   initEvents() {
     this.toolbar?.$on('rotate', this.onClickRotate);
     this.toolbar?.$on('back', this.onClickBack);
+    this.toolbar?.$on('info', this.onClickInfo);
     this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Closed, this.onClosed);
     this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
   }
@@ -129,9 +130,9 @@ export default class ToolbarModule implements Module {
   onClickRotate = () => {
     const nextRotateDeg = rotateList[this.curRotateIndex + 1];
     if (typeof nextRotateDeg === 'number') {
-      this.rootState?.rotateDeg.set(nextRotateDeg);
+      this.zoneState?.rotateDeg.set(nextRotateDeg);
     } else {
-      this.rootState?.rotateDeg.set(rotateList[0]);
+      this.zoneState?.rotateDeg.set(rotateList[0]);
     }
   }
 
@@ -140,8 +141,11 @@ export default class ToolbarModule implements Module {
     this.moduleOptions.eventEmitter?.emit(this.moduleOptions.Events.Module_ToClose);
   }
 
+  onClickInfo = () => {
+    this.moduleOptions.eventEmitter?.emit(this.moduleOptions.Events.Module_ToOpenInfo);
+  }
+
   onClickContainer = () => {
-    // if (e.target === this.el || this.el?.contains(e.target as HTMLElement)) { return; }
     this.isToolbarShowing = !this.isToolbarShowing;
   }
 }

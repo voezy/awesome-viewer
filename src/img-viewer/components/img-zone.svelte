@@ -77,8 +77,7 @@
     isImgLoaded = false;
     await tick();
     if (imgEl?.complete) {
-      isImgLoaded = true;
-      initImgData();
+      onLoaded();
     }
   }
 
@@ -88,10 +87,6 @@
         el: zoneEl,
         preventDefault: () => {
           return scaleRate <= 1;
-        },
-        baseScaleRate: () => {
-          console.log('baseScaleRate getter', scaleRate);
-          return scaleRate;
         },
       });
       for (const event in touchHandler.Events) {
@@ -125,11 +120,12 @@
     originalWidth = null
     originalHeight = null;
     visualHeight = null;
+    imgStyle = '';
   }
 
   function initImgData() {
-    originalWidth = imgEl.width;
-    originalHeight = imgEl.height;
+    originalWidth = imgEl.naturalWidth;
+    originalHeight = imgEl.naturalHeight;
     initImgSize();
     updateVisualSize();
   }
@@ -227,6 +223,10 @@
   function onLoaded() {
     isImgLoaded = true;
     initImgData();
+    dispatch('imgData', {
+      width: imgEl.naturalWidth,
+      height: imgEl.naturalHeight,
+    });
   }
 
   function onError() {

@@ -22,7 +22,7 @@
 </Template>
 
 <Story
-  name="mb"
+  name="img-toolbar-mb"
   args={{}}
 />
 

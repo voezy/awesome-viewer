@@ -1,8 +1,19 @@
-.as-reset-btn {
+@mixin as-reset-btn {
   -webkit-appearance: none;
   border: none;
   outline: none;
   padding: 0px;
   margin: 0px;
   background: transparent;
+}
+
+@mixin as-reset-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@mixin as-reset-link {
+  color: #000;
+  text-decoration: none;
 }

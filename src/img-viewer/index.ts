@@ -3,6 +3,7 @@ import ToolbarModulePc from './modules/toolbar/pc/toolbar';
 import ToolbarModuleMb from './modules/toolbar/mb/toolbar';
 import ModalContainer from './modules/modal-container/modal-container';
 import PinchZoomModule from './modules/pinch-zoom/pinch-zoom';
+import Info from './modules/info/info';
 import { isSupportTouch } from '../assets/utils/browser';
 import type {
   BasicImgViewerOptions,
@@ -23,6 +24,7 @@ export default class ImgViewer extends BasicImgViewer {
   get defaultModules() {
     const defaultModules: DefaultModules = {
       modalContainer: ModalContainer,
+      info: Info,
     };
     if (isSupportTouch) {
       defaultModules.pinchZoom = PinchZoomModule;
@@ -46,5 +48,9 @@ export default class ImgViewer extends BasicImgViewer {
 
   hide() {
     this.store.modules.modalContainer.visible?.set(false);
+  }
+
+  updateDesc(desc: string) {
+    (this.modules.info as unknown as Info).updateDesc(desc);
   }
 }

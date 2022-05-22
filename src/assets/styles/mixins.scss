@@ -22,3 +22,7 @@
   bottom: 0;
   margin: auto;
 }
+
+@mixin as-fonts {
+  font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif, "Apple Color Emoji";
+}

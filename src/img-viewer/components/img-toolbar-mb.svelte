@@ -13,21 +13,21 @@
 
   function onClickInfo() {
     dispatch('info');
-    }
+  }
 </script>
 
 <div class="as-img-viewer-toolbar-mb">
   <button
-    class="as-reset-btn as-img-viewer-toolbar-mb__back as-img-viewer-toolbar-mb__btn as-img-viewer-toolbar-mb__btn--close"
+    class="as-img-viewer-toolbar-mb__back as-img-viewer-toolbar-mb__btn as-img-viewer-toolbar-mb__btn--close"
     on:click={onClickBack}
   >
     <i class="ri-arrow-left-s-line"></i>
   </button>
   <div class="as-img-viewer-toolbar-mb__tools">
-    <button class="as-reset-btn as-img-viewer-toolbar-mb__btn" on:click={onClickRotate}>
+    <button class="as-img-viewer-toolbar-mb__btn" on:click={onClickRotate}>
       <i class="ri-clockwise-line"></i>
     </button>
-    <button class="as-reset-btn as-img-viewer-toolbar-mb__btn" on:click={onClickInfo}>
+    <button class="as-img-viewer-toolbar-mb__btn" on:click={onClickInfo}>
       <i class="ri-information-line"></i>
     </button>
   </div>
@@ -45,7 +45,7 @@
     flex-direction: row;
     justify-content: space-between;
     color: #fff;
-    background-color: rgba(#000, 0.7);
+    background-color: rgba(#000, 0.3);
   }
 
   .as-img-viewer-toolbar-mb__btn {
@@ -55,6 +55,7 @@
     vertical-align: top;
     font-size: 20px;
     text-align: center;
+    @include as-reset-btn();
     &--close {
       font-size: 22px;
     }
