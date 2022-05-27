@@ -2,6 +2,7 @@ import Events from 'events';
 import type { Writable } from 'svelte/types/runtime/store';
 import type { StateValue } from './store';
 import { Events as ImgEvents } from './events';
+import Motion from './motion/';
 
 export interface TapEventCenterData {
   x: number;
@@ -90,7 +91,8 @@ export interface ModuleOptions {
   store: ImgViewerStore,
   eventEmitter: Events;
   Events: typeof ImgEvents;
-  invokeZone: (method: string, ...args: unknown[]) => void
+  invokeZone: (method: string, ...args: unknown[]) => void,
+  Motion: typeof Motion,
 }
 
 export interface NewableModule {

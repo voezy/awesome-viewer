@@ -2,6 +2,7 @@ import Events from 'events';
 import { createState } from './store';
 import ImgZone from './components/img-zone.svelte';
 import { Events as ImgEvents } from './events';
+import Motion from './motion/';
 import type {
   BasicImgViewerOptions,
   ImgViewerState,
@@ -224,6 +225,7 @@ export default class BasicImgViewer {
       eventEmitter: this._eventEmitter as Events,
       Events: this.Events,
       invokeZone: this.invokeZone,
+      Motion: Motion,
     }) as Module;
     this.modules[name] = module;
     if (typeof module.proccessOptions === 'function') {

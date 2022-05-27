@@ -178,7 +178,11 @@ export default class ToolbarModule implements Module {
   }
 
   onScaleRateChanged = (scaleRate: unknown) => {
-    this.updateProps({ scaleRate });
+    this.updateProps({
+      scaleRate,
+      allowZoomIn: this.allowZoomIn,
+      allowZoomOut: this.allowZoomOut,
+    });
   }
 
   updateProps(props: { [key: string]: unknown }) {

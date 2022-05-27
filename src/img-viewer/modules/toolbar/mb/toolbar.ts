@@ -1,3 +1,4 @@
+import { tweened } from 'svelte/motion';
 import Toolbar from '../../../components/img-toolbar-mb.svelte';
 import { TouchEvents } from '../../../../assets/utils/touch';
 import './toolbar.scss';
@@ -5,6 +6,7 @@ import type {
   Module,
   ModuleOptions,
 } from '../../../index.d';
+import type TweenedMotion from '../../../motion/tweened';
 
 const rotateList = [0, 90, 180, 270];
 
@@ -18,6 +20,8 @@ export default class ToolbarModule implements Module {
   el: HTMLElement | null = null;
 
   _isToolbarShowing = false;
+
+  _visibilityMotion: TweenedMotion | null = null;
 
   constructor(name: string, options: ModuleOptions) {
     this.name = name;
@@ -51,9 +55,9 @@ export default class ToolbarModule implements Module {
     this._isToolbarShowing = isToolbarShowing;
     if (!this.el) { return; }
     if (isToolbarShowing) {
-      this.el.style.display = 'block';
+      this.showToolBar();
     } else {
-      this.el.style.display = 'none';
+      this.hideToolBar();
     }
   }
 
@@ -147,5 +151,44 @@ export default class ToolbarModule implements Module {
 
   onClickContainer = () => {
     this.isToolbarShowing = !this.isToolbarShowing;
+  }
+
+  showToolBar() {
+    if (!this.el) { return; }
+    this.el.style.opacity = '0';
+    this.el.style.display = 'block';
+    if (this._visibilityMotion) {
+      this._visibilityMotion?.stop();
+    }
+    this._visibilityMotion = new this.moduleOptions.Motion.TweenedMotion({
+      value: 0,
+      onUpdate: (newVal: number) => {
+        this.el && (this.el.style.opacity = String(newVal));
+      }
+    });
+    this._visibilityMotion.to(1, {
+      duration: 200
+    });
+  }
+
+  hideToolBar() {
+    if (!this.el) { return; }
+    this.el.style.opacity = '1';
+    this.el.style.display = 'block';
+    if (this._visibilityMotion) {
+      this._visibilityMotion?.stop();
+    }
+    this._visibilityMotion = new this.moduleOptions.Motion.TweenedMotion({
+      value: 1,
+      onUpdate: (newVal: number) => {
+        this.el && (this.el.style.opacity = String(newVal));
+      },
+      onFinish: () => {
+        this.el && (this.el.style.display = 'none');
+      }
+    });
+    this._visibilityMotion.to(0, {
+      duration: 200
+    });
   }
 }

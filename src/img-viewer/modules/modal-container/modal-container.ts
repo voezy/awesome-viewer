@@ -22,8 +22,6 @@ export default class ModalContainer implements Module {
 
   el: HTMLElement | null = null;
 
-  // touchHandler: TouchHandler | null = null;
-
   swipeClosingProgress = 0;
 
   constructor(name: string, options: ModuleOptions) {
