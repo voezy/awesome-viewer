@@ -3,8 +3,8 @@
   import ImgInfoList from './img-info-list.svelte';
 
   export let anchor = 'left';
-  export let width = 0;
-  export let height = 0;
+  export let width: number | null = 0;
+  export let height: number | null = 0;
   export let src = '';
   export let description = '';
   export let visible = false;

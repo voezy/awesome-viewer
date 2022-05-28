@@ -1,35 +1,15 @@
+import ModuleBase from '../module-base';
 import ImgInfo from '../../components/img-info.svelte';
 import { isSupportTouch } from '../../../assets/utils/browser';
 import type { StateValue } from '../../store';
-import type {
-  Module,
-  ModuleOptions,
-} from '../../index.d';
 
 interface InfoState {
   visible: StateValue<boolean>,
   description: StateValue<string>,
 }
 
-export default class ModalContainer implements Module {
-  name: string;
-
-  moduleOptions: ModuleOptions;
-
+export default class ModalContainer extends ModuleBase {
   imgInfo: ImgInfo | null = null;
-
-  constructor(name: string, options: ModuleOptions) {
-    this.name = name;
-    this.moduleOptions = options;
-  }
-
-  get rootStore() {
-    return this.moduleOptions.store;
-  }
-
-  get zoneState() {
-    return this.rootStore?.zoneState;
-  }
 
   get moduleState(): InfoState {
     return this.rootStore?.modules[this.name] as unknown as InfoState;

@@ -1,9 +1,9 @@
+import ModuleBase from '../module-base';
 import Modal from '../../../modal/components/modal.svelte';
 import type { StateValue } from '../../store';
 import { TouchEvents } from '../../../assets/utils/touch';
 import { isSupportTouch } from '../../../assets/utils/browser';
 import type {
-  Module,
   ModuleOptions,
   BasicImgViewerOptions,
   DragMoveEventData
@@ -13,33 +13,20 @@ interface ModalState {
   visible: StateValue<boolean>,
 }
 
-export default class ModalContainer implements Module {
-  name: string;
-
-  moduleOptions: ModuleOptions;
-
+export default class ModalContainer extends ModuleBase {
   modal: Modal | null = null;
 
   el: HTMLElement | null = null;
 
   swipeClosingProgress = 0;
 
-  constructor(name: string, options: ModuleOptions) {
-    this.name = name;
-    this.moduleOptions = options;
-    this.init();
-  }
-
-  get rootStore() {
-    return this.moduleOptions.store;
-  }
-
-  get zoneState() {
-    return this.rootStore?.zoneState;
-  }
-
   get moduleState(): ModalState {
     return this.rootStore?.modules[this.name] as unknown as ModalState;
+  }
+
+  constructor(name: string, options: ModuleOptions) {
+    super(name, options);
+    this.init();
   }
 
   init() {

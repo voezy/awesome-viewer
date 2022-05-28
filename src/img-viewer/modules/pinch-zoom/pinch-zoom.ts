@@ -1,32 +1,14 @@
+import ModuleBase from '../module-base';
 import { TouchHandler } from '../../../assets/utils/touch';
 import type {
-  Module,
-  ModuleOptions,
   TapEventCenterData,
   PinchEventData,
 } from '../../index.d';
 
-export default class ModalContainer implements Module {
-  name: string;
-
-  moduleOptions: ModuleOptions;
-
+export default class ModalContainer extends ModuleBase {
   touchHandler: TouchHandler | null = null;
 
   lastCenter: TapEventCenterData | null = null;
-
-  constructor(name: string, options: ModuleOptions) {
-    this.name = name;
-    this.moduleOptions = options;
-  }
-
-  get rootStore() {
-    return this.moduleOptions.store;
-  }
-
-  get zoneState() {
-    return this.rootStore?.zoneState;
-  }
 
   get container() {
     const getContainer = this.moduleOptions?.getContainer;
