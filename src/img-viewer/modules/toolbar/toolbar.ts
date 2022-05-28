@@ -1,50 +1,59 @@
-import { tweened } from 'svelte/motion';
-import Toolbar from '../../../components/img-toolbar-mb.svelte';
-import { TouchEvents } from '../../../../assets/utils/touch';
-import './toolbar.scss';
-import type {
-  Module,
-  ModuleOptions,
-} from '../../../index.d';
-import type TweenedMotion from '../../../motion/tweened';
+import ModuleBase from '../module-base';
+import Toolbar from '../../components/img-toolbar-container.svelte';
+import { TouchEvents } from '../../../assets/utils/touch';
+import { download } from '../../../assets/utils/net';
+import type TweenedMotion from '../../motion/tweened';
 
+const scaleRateList = [1, 1.5, 2, 2.5, 3, 3.5, 4, 5];
 const rotateList = [0, 90, 180, 270];
 
-export default class ToolbarModule implements Module {
-  name: string;
-
-  moduleOptions: ModuleOptions;
-
+export default class ToolbarModule extends ModuleBase {
   toolbar: Toolbar | null = null;
 
   el: HTMLElement | null = null;
+
+  toolbarTimer: number | null = null;
 
   _isToolbarShowing = false;
 
   _visibilityMotion: TweenedMotion | null = null;
 
-  constructor(name: string, options: ModuleOptions) {
-    this.name = name;
-    this.moduleOptions = options;
-  }
-
   onInitReady() {
     this.initEl();
     this.initComp();
     this.initEvents();
+    this.subscribeStore();
   }
-
-  get rootStore() {
-    return this.moduleOptions.store;
-  }
-
-  get zoneState() {
-    return this.rootStore?.zoneState;
-  }
-
 
   get curRotateIndex() {
     return rotateList.findIndex((target) => target === this.zoneState?.rotateDeg.value);
+  }
+
+  get curScaleIndex() {
+    const curScaleRate = this.zoneState?.scaleRate.value;
+    let curScaleRateIndex = -1;
+    scaleRateList.forEach((item, index) => {
+      const prev = scaleRateList[index - 1];
+      const next = scaleRateList[index + 1];
+      if (item === curScaleRate) {
+        curScaleRateIndex = index;
+      }
+      if (typeof prev !== 'undefined' &&
+      typeof next !== 'undefined' &&
+      curScaleRate > prev &&
+      curScaleRate < next) {
+        curScaleRateIndex = index;
+      }
+    });
+    return curScaleRateIndex;
+  }
+
+  get allowZoomIn() {
+    return this.curScaleIndex < scaleRateList.length - 1;
+  }
+
+  get allowZoomOut() {
+    return this.curScaleIndex > 0;
   }
 
   get isToolbarShowing() {
@@ -70,7 +79,6 @@ export default class ToolbarModule implements Module {
     const container = this.container;
     if (container instanceof HTMLElement) {
       this.el = document.createElement('div');
-      this.el.classList.add('as-img-viewer-module__toolbar-mb-wrap');
       container.appendChild(this.el);
       this.isToolbarShowing = false;
     }
@@ -80,22 +88,60 @@ export default class ToolbarModule implements Module {
     this.toolbar = new Toolbar({
       target: this.el as HTMLElement,
       props: {
+        isMb: false,
         scaleRate: this.zoneState?.scaleRate?.value,
+        allowZoomIn: this.allowZoomIn,
+        allowZoomOut: this.allowZoomOut,
       },
     });
   }
 
   initEvents() {
+    this.toolbar?.$on('zoom-in', this.onClickZoomIn);
+    this.toolbar?.$on('zoom-out', this.onClickZoomOut);
+    this.toolbar?.$on('recover', this.onClickRecover);
+    this.toolbar?.$on('download', this.onClickDownload);
     this.toolbar?.$on('rotate', this.onClickRotate);
     this.toolbar?.$on('back', this.onClickBack);
     this.toolbar?.$on('info', this.onClickInfo);
     this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Closed, this.onClosed);
-    this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+    const container = this.container;
+    if (this.rootState.isSupportTouch.value) {
+      this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+    } else {
+      container?.addEventListener('mousemove', this.onMouseMove);
+      container?.addEventListener('mouseout', this.onMouseOut);
+    }
   }
 
   clearEvents() {
     this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Closed, this.onClosed);
-    this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+    const container = this.container;
+    if (this.rootState.isSupportTouch.value) {
+      this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+    } else {
+      container?.removeEventListener('mousemove', this.onMouseMove);
+      container?.removeEventListener('mouseout', this.onMouseOut);
+    }
+  }
+
+  subscribeStore() {
+    this.zoneState?.scaleRate.subscribe(this.onScaleRateChanged);
+    this.rootState?.deviceType.subscribe(this.onDeviceTypeChanged);
+  }
+
+  onScaleRateChanged = (scaleRate: unknown) => {
+    this.updateProps({
+      scaleRate,
+      allowZoomIn: this.allowZoomIn,
+      allowZoomOut: this.allowZoomOut,
+    });
+  }
+
+  onDeviceTypeChanged = (deviceType: unknown) => {
+    this.toolbar?.$set({
+      isMb: deviceType === 'Phone',
+    });
   }
 
   onTouchEvent = (e: unknown) => {
@@ -104,6 +150,30 @@ export default class ToolbarModule implements Module {
       this.onClickContainer();
     }
   }
+
+  onMouseMove = () => {
+    this.clearToolbarTimer();
+    if (!this.isToolbarShowing) {
+      this.isToolbarShowing = true;
+    }
+    this.initToolbarTimer();
+  }
+
+  onMouseOut = () => {
+    this.initToolbarTimer();
+  }
+
+  initToolbarTimer = () => {
+    this.clearToolbarTimer();
+    this.toolbarTimer = window.setTimeout(() => {
+      this.isToolbarShowing = false;
+    }, 3000);
+  }
+
+  clearToolbarTimer = () => {
+    this.toolbarTimer && window.clearTimeout(this.toolbarTimer);
+  }
+
 
   onClosed = () => {
     this.isToolbarShowing = false;
@@ -129,6 +199,28 @@ export default class ToolbarModule implements Module {
 
   updateProps(props: { [key: string]: unknown }) {
     this.toolbar?.$set(props);
+  }
+
+  onClickZoomIn = () => {
+    const nextRate = scaleRateList[this.curScaleIndex + 1];
+    if (nextRate) {
+      this.zoneState?.scaleRate.tweened(nextRate);
+    }
+  }
+
+  onClickZoomOut = () => {
+    const prevRate = scaleRateList[this.curScaleIndex - 1];
+    if (prevRate) {
+      this.zoneState?.scaleRate.tweened(prevRate);
+    }
+  }
+
+  onClickRecover = () => {
+    this.moduleOptions.eventEmitter?.emit(this.moduleOptions.Events.Module_ToRecover);
+  }
+
+  onClickDownload = () => {
+    void download(this.zoneState?.src.value);
   }
 
   onClickRotate = () => {

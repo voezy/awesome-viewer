@@ -12,6 +12,8 @@ export enum Events {
   Module_ToOpenInfo = 'Module_ToOpenInfo',
   // Image data forward
   Module_ImgData = 'Module_ImgData',
+  // window/document events
+  Module_WindowResize = 'Module_WindowResize',
 
   /**
    * img viewer is closed

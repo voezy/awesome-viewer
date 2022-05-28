@@ -1,9 +1,9 @@
 import BasicImgViewer from './basic-img-viewer';
-import ToolbarModulePc from './modules/toolbar/pc/toolbar';
-import ToolbarModuleMb from './modules/toolbar/mb/toolbar';
+import ToolbarModule from './modules/toolbar/toolbar';
 import ModalContainer from './modules/modal-container/modal-container';
 import PinchZoomModule from './modules/pinch-zoom/pinch-zoom';
-import Info from './modules/info/info';
+import InfoModule from './modules/info/info';
+import GlobalModule from './modules/global/global';
 import { isSupportTouch } from '../assets/utils/browser';
 import type {
   BasicImgViewerOptions,
@@ -23,14 +23,13 @@ export default class ImgViewer extends BasicImgViewer {
 
   get defaultModules() {
     const defaultModules: DefaultModules = {
+      global: GlobalModule,
       modalContainer: ModalContainer,
-      info: Info,
+      info: InfoModule,
+      toolbar: ToolbarModule,
     };
     if (isSupportTouch) {
       defaultModules.pinchZoom = PinchZoomModule;
-      defaultModules.toolbar = ToolbarModuleMb;
-    } else {
-      defaultModules.toolbar = ToolbarModulePc;
     }
     return defaultModules;
   }

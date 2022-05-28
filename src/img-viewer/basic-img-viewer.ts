@@ -3,6 +3,8 @@ import { createState } from './store';
 import ImgZone from './components/img-zone.svelte';
 import { Events as ImgEvents } from './events';
 import Motion from './motion/';
+import { defineDevice } from '../assets/utils/device';
+import { isSupportTouch } from '../assets/utils/browser';
 import type {
   BasicImgViewerOptions,
   ImgViewerState,
@@ -51,6 +53,8 @@ export default class BasicImgViewer {
       },
       rootState: {
         layerIndex: createState(1),
+        deviceType: createState(defineDevice()),
+        isSupportTouch: createState(isSupportTouch),
       },
       modules: {},
     };

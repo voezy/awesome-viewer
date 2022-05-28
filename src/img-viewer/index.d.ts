@@ -1,8 +1,9 @@
 import Events from 'events';
-import type { Writable } from 'svelte/types/runtime/store';
-import type { StateValue } from './store';
 import { Events as ImgEvents } from './events';
 import Motion from './motion/';
+import type { Writable } from 'svelte/types/runtime/store';
+import type { StateValue } from './store';
+import type { DeviceType } from '../assets/utils/device';
 
 export interface TapEventCenterData {
   x: number;
@@ -71,7 +72,12 @@ export interface ImgData {
 }
 
 export interface RootState {
+  // top z-index of module element
   layerIndex: StateValue<number>,
+  // device type
+  deviceType: StateValue<DeviceType>,
+  // touch support
+  isSupportTouch: StateValue<boolean>,
 }
 
 export interface ImgViewerStore {
