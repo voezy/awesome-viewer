@@ -24,7 +24,7 @@
   let isDragging = false;
   let imgStyle = '';
   let touchHandler: TouchHandler | null = null;
-  let touchEventHandlers: { [key: string]: (...args: unknown[]) => void } = {};
+  let touchEventForwarder: { [key: string]: (...args: unknown[]) => void } = {};
   const dispatch = createEventDispatcher();
 
   interface PositioningImgParams {
@@ -38,27 +38,6 @@
   $: {
     if (typeof scaleRate !== 'undefined' || typeof rotateDeg !== 'undefined') {
       updateVisualSize();
-    }
-  }
-  $: {
-    if (rotateDeg) {
-      const width = isReverseDirection ? visualHeight : visualWidth;
-      const height = isReverseDirection ? visualWidth : visualHeight;
-      const marginTop = -(height as number)/2;
-      const marginLeft =  -(width as number)/2;
-      imgStyle = `
-        width: ${width}px;
-        height: ${height}px;
-        transform: rotate(${rotateDeg}deg);
-        transform-origin: center;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-top: ${marginTop}px;
-        margin-left: ${marginLeft}px;
-      `;
-    } else {
-      imgStyle = '';
     }
   }
 
@@ -91,17 +70,19 @@
       });
       for (const event in touchHandler.Events) {
         const handler = touchEvenDispatcher(event);
-        touchEventHandlers[event] = handler;
+        touchEventForwarder[event] = handler;
         touchHandler?.on(event, handler);
       }
+      touchHandler.on(touchHandler.Events.TouchEnd, onTouchEnd);
     }
   }
 
   function clearTouchHandler() {
-    for (const event in touchEventHandlers) {
-      const handler = touchEventHandlers[event];
+    for (const event in touchEventForwarder) {
+      const handler = touchEventForwarder[event];
       touchHandler?.off(event, handler);
     }
+    touchHandler?.off(touchHandler.Events.TouchEnd, onTouchEnd);
     touchHandler?.destroy();
   }
 
@@ -112,6 +93,10 @@
         data: e
       });
     }
+  }
+
+  function onTouchEnd() {
+    touchHandler && (touchHandler.baseScaleRate = scaleRate);
   }
 
   function clearData() {
@@ -197,8 +182,31 @@
       scaleCenter = null;
     }
 
+    setImgStyles();
     positioningImg({ customScrollData });
   };
+
+  function setImgStyles() {
+    if (rotateDeg) {
+      const width = isReverseDirection ? visualHeight : visualWidth;
+      const height = isReverseDirection ? visualWidth : visualHeight;
+      const marginTop = -(height as number)/2;
+      const marginLeft =  -(width as number)/2;
+      imgStyle = `
+        width: ${width}px;
+        height: ${height}px;
+        transform: rotate(${rotateDeg}deg);
+        transform-origin: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: ${marginTop}px;
+        margin-left: ${marginLeft}px;
+      `;
+    } else {
+      imgStyle = '';
+    }
+  }
 
   async function positioningImg(params?: PositioningImgParams) {
     if (!imgEl || !zoneEl) { return; }
@@ -277,12 +285,10 @@
   {#if src }
     <div
       class="as-img-viewer-zone__img-wrap"
-      style="
-        width: { visualWidth ? `${visualWidth}px` : '' };
-        height: { visualHeight ? `${visualHeight}px` : ''};
-        opacity: {isImgLoaded ? 1 : 0};
-        display: { isImgError ? 'none' : 'inline-block' }
-      "
+      style:width={ visualWidth ? `${visualWidth}px` : '' }
+      style:height={ visualHeight ? `${visualHeight}px` : '' }
+      style:opacity={ isImgLoaded ? 1 : 0 }
+      style:display={ isImgError ? 'none' : 'inline-block' }
     >
         <img
         bind:this={imgEl}

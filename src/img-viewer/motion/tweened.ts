@@ -1,6 +1,7 @@
 import { get } from 'svelte/store';
 import { tweened } from 'svelte/motion';
 import type { Tweened } from 'svelte/motion';
+import type { TweenedOptions } from '../index.d';
 
 type OnUpdate = (value: number) => void;
 type OnFinish = (value: number) => void;
@@ -9,10 +10,6 @@ interface TweendMotionOptions {
   value: number;
   onUpdate: OnUpdate;
   onFinish?: OnFinish;
-}
-
-interface TweenedOptions {
-  duration: number;
 }
 
 export default class TweenedMotion {

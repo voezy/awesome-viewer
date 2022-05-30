@@ -4,6 +4,7 @@ import Motion from './motion/';
 import type { Writable } from 'svelte/types/runtime/store';
 import type { StateValue } from './store';
 import type { DeviceType } from '../assets/utils/device';
+import * as Easing from 'svelte/easing';
 
 export interface TapEventCenterData {
   x: number;
@@ -139,4 +140,10 @@ export interface InfoSection {
   title: string;
   desc?: string;
   items: InfoItem[];
+}
+
+
+export interface TweenedOptions {
+  duration: number;
+  easing?: Easing;
 }

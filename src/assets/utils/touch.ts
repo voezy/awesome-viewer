@@ -37,9 +37,11 @@ export class TouchHandler {
 
   _tuochStartTime: null | number = null;
 
-  _isTapping = true;
+  _isTapping = false;
 
   _lastTouchEndTime: null | number = null;
+
+  _initPinchDistance: null | number = null;
 
   _tapTimer: null | number = null;
 
@@ -71,7 +73,6 @@ export class TouchHandler {
     this._el.addEventListener('touchmove', this.onTouchMove);
     this._el.addEventListener('touchend', this.onTouchEnd);
     this._el.addEventListener('touchcancel', this.onTouchCancel);
-    this._el.addEventListener('dblclick', this.onDbClick);
   }
 
   removeEvents() {
@@ -79,7 +80,6 @@ export class TouchHandler {
     this._el.removeEventListener('touchmove', this.onTouchMove);
     this._el.removeEventListener('touchend', this.onTouchEnd);
     this._el.removeEventListener('touchcancel', this.onTouchCancel);
-    this._el.removeEventListener('dblclick', this.onDbClick);
   }
 
   onTouchStart = () => {
@@ -134,10 +134,11 @@ export class TouchHandler {
     if (!initTouch0 || !initTouch1) {
       this.initTouches = [touch0, touch1];
       return;
+    } else if (typeof this._initPinchDistance !== 'number') {
+      this._initPinchDistance = Math.hypot(initTouch0.screenX - initTouch1.screenX, initTouch0.screenY - initTouch1.screenY);
     }
     const curDistance = Math.hypot(touch0.screenX - touch1.screenX, touch0.screenY - touch1.screenY);
-    const lastDistance = Math.hypot(initTouch0.screenX - initTouch1.screenX, initTouch0.screenY - initTouch1.screenY);
-    const scaleRateDis = curDistance / lastDistance;
+    const scaleRateDis = curDistance / this._initPinchDistance;
     let centerX = null;
     let centerY = null;
     if (touch1.screenY > touch0.screenY) {
@@ -156,13 +157,20 @@ export class TouchHandler {
     });
   }
 
-  onTouchEnd = () => {
+  onTouchEnd = (e: Event) => {
     this._eventEmitter.emit(this.Events.TouchEnd);
     this.initData();
     const now = Date.now();
-    if (typeof this._tapTimer === 'number') {
+    if (!this._isTapping || typeof this._tuochStartTime !== 'number') {
+      return;
+    }
+    const hasFirstTap = typeof this._tapTimer === 'number';
+    const isInDbTapDuration = now - this._tuochStartTime <= 150;
+    if (hasFirstTap && isInDbTapDuration) {
+      if (this._preventDefault()) { e.preventDefault(); }
       this.clearTapTimer();
-    } else if (this._isTapping && typeof this._tuochStartTime === 'number' && now - this._tuochStartTime <= 150) {
+      this._eventEmitter.emit(this.Events.DoubleTap);
+    } else {
       this.initTapTimer();
     }
   }
@@ -182,11 +190,6 @@ export class TouchHandler {
     this._tuochStartTime = null;
   }
 
-  onDbClick = (e: Event) => {
-    if (this._preventDefault()) { e.preventDefault(); }
-    this._eventEmitter.emit(this.Events.DoubleTap);
-  }
-
   onTouchCancel = () => {
     this._eventEmitter.emit(this.Events.TouchCancel);
     this.initData();
@@ -194,6 +197,7 @@ export class TouchHandler {
 
   initData = () => {
     this.initTouches = [];
+    this._initPinchDistance = null;
   }
 
   destroy() {

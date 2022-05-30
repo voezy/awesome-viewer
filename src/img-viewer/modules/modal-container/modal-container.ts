@@ -2,7 +2,6 @@ import ModuleBase from '../module-base';
 import Modal from '../../../modal/components/modal.svelte';
 import type { StateValue } from '../../store';
 import { TouchEvents } from '../../../assets/utils/touch';
-import { isSupportTouch } from '../../../assets/utils/browser';
 import type {
   ModuleOptions,
   BasicImgViewerOptions,
@@ -36,7 +35,7 @@ export default class ModalContainer extends ModuleBase {
       target: this.el,
       props: {
         visible: this.moduleState?.visible.value,
-        closeBtnEnabled: !isSupportTouch,
+        closeBtnEnabled: !this.rootState.isSupportTouch.value,
       }
     });
     document.body.appendChild(this.el);

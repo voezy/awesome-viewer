@@ -1,13 +1,11 @@
 import ModuleBase from '../module-base';
-import { TouchHandler } from '../../../assets/utils/touch';
+import { TouchEvents } from '../../../assets/utils/touch';
 import type {
   TapEventCenterData,
   PinchEventData,
 } from '../../index.d';
 
 export default class ModalContainer extends ModuleBase {
-  touchHandler: TouchHandler | null = null;
-
   lastCenter: TapEventCenterData | null = null;
 
   get container() {
@@ -15,16 +13,28 @@ export default class ModalContainer extends ModuleBase {
     return typeof getContainer === 'function' ? getContainer() : null;
   }
 
-  _init() {
-    this.touchHandler = new TouchHandler({ el: this.container as HTMLElement });
-    this.touchHandler.on(this.touchHandler.Events.Pinch, this.onPinch);
-    this.touchHandler.on(this.touchHandler.Events.TouchEnd, this.onTouchEnd);
-    this.touchHandler.on(this.touchHandler.Events.TouchCancel, this.onTouchCancel);
-    this.touchHandler.on(this.touchHandler.Events.DoubleTap, this.onDoubleTap);
-  }
-
   onInitReady() {
     this._init();
+  }
+
+  _init() {
+    if (this.rootState.isSupportTouch.value) {
+      this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+    }
+  }
+
+  onTouchEvent = (e: unknown) => {
+    const { event, data } = e as { event: string, data: unknown };
+    switch (event) {
+    case TouchEvents.Pinch: {
+      this.onPinch(data);
+      break;
+    }
+    case TouchEvents.DoubleTap: {
+      this.onDoubleTap();
+      break;
+    }
+    }
   }
 
   onPinch = (data: unknown = {}) => {
@@ -51,19 +61,9 @@ export default class ModalContainer extends ModuleBase {
     }
   }
 
-  onTouchEnd = () => {
-    this.touchHandler && (this.touchHandler.baseScaleRate = this.zoneState?.scaleRate.value);
-  }
-
-  onTouchCancel = () => {
-    this.touchHandler && (this.touchHandler.baseScaleRate = this.zoneState?.scaleRate.value);
-  }
-
   destroy() {
-    this.touchHandler?.off(this.touchHandler.Events.Pinch, this.onPinch);
-    this.touchHandler?.off(this.touchHandler.Events.TouchEnd, this.onTouchEnd);
-    this.touchHandler?.off(this.touchHandler.Events.TouchCancel, this.onTouchCancel);
-    this.touchHandler?.off(this.touchHandler.Events.DoubleTap, this.onDoubleTap);
-    this.touchHandler?.destroy();
+    if (this.rootState.isSupportTouch.value) {
+      this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+    }
   }
 }
