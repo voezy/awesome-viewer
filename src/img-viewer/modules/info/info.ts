@@ -5,10 +5,9 @@ import type { StateValue } from '../../store';
 
 interface InfoState {
   visible: StateValue<boolean>,
-  description: StateValue<string>,
 }
 
-export default class ModalContainer extends ModuleBase {
+export default class Info extends ModuleBase {
   imgInfo: ImgInfo | null = null;
 
   get moduleState(): InfoState {
@@ -29,7 +28,7 @@ export default class ModalContainer extends ModuleBase {
         width: width.value,
         height: height.value,
         src: this.zoneState.src.value,
-        description: this.moduleState.description.value,
+        description: this.rootState.description.value,
         anchor: isSupportTouch ? 'bottom' : 'left',
       },
     });
@@ -41,7 +40,6 @@ export default class ModalContainer extends ModuleBase {
   getDefaultState() {
     return {
       visible: false,
-      description: '',
     };
   }
 
@@ -58,12 +56,15 @@ export default class ModalContainer extends ModuleBase {
   }
 
   initEvents() {
+    this.rootState.description.subscribe(this.onDescChanged);
+    this.zoneState.src.subscribe(this.onSrcChanged);
     this.moduleOptions.eventEmitter?.on(this.moduleOptions.Events.Module_ToClose, this.onCloseViewer);
     this.moduleOptions.eventEmitter?.on(this.moduleOptions.Events.Module_ToOpenInfo, this.onClickOpenInfo);
   }
 
   clearEvents() {
     this.moduleOptions.eventEmitter?.off(this.moduleOptions.Events.Module_ToClose, this.onCloseViewer);
+    this.moduleOptions.eventEmitter?.off(this.moduleOptions.Events.Module_ToOpenInfo, this.onClickOpenInfo);
   }
 
   onVisibleChange = (newVisible: boolean) => {
@@ -87,13 +88,21 @@ export default class ModalContainer extends ModuleBase {
     this.imgInfo?.$set({
       width: width.value,
       height: height.value,
-      description: this.moduleState.description.value,
+      description: this.rootState.description.value,
       zIndex,
     });
     this.moduleState.visible.set(true);
   }
 
-  updateDesc(desc: string) {
-    this.moduleState.description.set(desc);
+  onDescChanged = (description: unknown) => {
+    this.imgInfo?.$set({
+      description,
+    });
+  }
+
+  onSrcChanged = (src: unknown) => {
+    this.imgInfo?.$set({
+      src: src as string,
+    });
   }
 }

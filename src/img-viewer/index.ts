@@ -4,7 +4,9 @@ import ModalContainer from './modules/modal-container/modal-container';
 import PinchZoomModule from './modules/pinch-zoom/pinch-zoom';
 import InfoModule from './modules/info/info';
 import GlobalModule from './modules/global/global';
+import ListModule from './modules/list/list';
 import { isSupportTouch } from '../assets/utils/browser';
+import { isString } from '../assets/utils/type';
 import type {
   BasicImgViewerOptions,
   NewableModule
@@ -27,6 +29,7 @@ export default class ImgViewer extends BasicImgViewer {
       modalContainer: ModalContainer,
       info: InfoModule,
       toolbar: ToolbarModule,
+      list: ListModule,
     };
     if (isSupportTouch) {
       defaultModules.pinchZoom = PinchZoomModule;
@@ -50,6 +53,8 @@ export default class ImgViewer extends BasicImgViewer {
   }
 
   updateDesc(desc: string) {
-    (this.modules.info as unknown as Info).updateDesc(desc);
+    if (isString(desc)) {
+      this.store.rootState.description.set(desc);
+    }
   }
 }

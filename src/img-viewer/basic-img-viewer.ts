@@ -5,6 +5,7 @@ import { Events as ImgEvents } from './events';
 import Motion from './motion/';
 import { defineDevice } from '../assets/utils/device';
 import { isSupportTouch } from '../assets/utils/browser';
+import { isArray, isString } from '../assets/utils/type';
 import type {
   BasicImgViewerOptions,
   ImgViewerState,
@@ -14,6 +15,7 @@ import type {
   ModuleState,
   ImgViewerStore,
   Unsubscriber,
+  ImgItem,
 } from './index.d';
 import type { StateValue } from './store';
 
@@ -55,6 +57,8 @@ export default class BasicImgViewer {
         layerIndex: createState(1),
         deviceType: createState(defineDevice()),
         isSupportTouch: createState(isSupportTouch),
+        description: createState(''),
+        list: createState([] as ImgItem[]),
       },
       modules: {},
     };
@@ -137,13 +141,19 @@ export default class BasicImgViewer {
     this.off(this.Events.Module_ToRecover, this.onReceiveRecover);
   }
 
-  updateState(newState: ImgViewerState) {
-    if (!newState) { return; }
-    const state = this.store.zoneState;
-    const { src } = newState;
-    if (src !== state.src.value) {
-      src && state.src.set(src);
+  updateState(newViewerState: ImgViewerState) {
+    if (!newViewerState) { return; }
+    const zoneState = this.store.zoneState;
+    const { src, description, list } = newViewerState;
+    if (src !== zoneState.src.value) {
+      src && zoneState.src.set(src);
       this._imgZone?.init();
+    }
+    if (isArray(list)) {
+      this.store.rootState.list.set(list as ImgItem[]);
+    }
+    if (isString(description)) {
+      this.store.rootState.description.set(description as string);
     }
   }
 

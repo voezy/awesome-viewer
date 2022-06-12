@@ -7,6 +7,8 @@
   export let anchor = 'left';
   export let visible = false;
   export let zIndex: number | null;
+  export let fitContent = false;
+  export let maskEnabled = true;
 
   const dispatch = createEventDispatcher();
   let anchorClass: string;
@@ -21,6 +23,9 @@
       anchorClass = 'as-img-viewer-drawer__main--bottom'
     } else {
       anchorClass = 'as-img-viewer-drawer__main--left'
+    }
+    if (fitContent) {
+      anchorClass += ' as-img-viewer-drawer__main--fit-content';
     }
   }
   $: {
@@ -56,7 +61,7 @@
 </script>
 
 <div class="as-img-viewer-drawer">
-  {#if visible }
+  {#if maskEnabled && visible }
     <div
       transition:fade="{{ duration: 150 }}"
       class="as-img-viewer-drawer__mask"
@@ -108,6 +113,9 @@
       top: 0;
       width: 300px;
       height: 100%;
+      &.as-img-viewer-drawer__main--fit-content {
+        width: fit-content;
+      }
     }
   }
 </style>

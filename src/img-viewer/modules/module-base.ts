@@ -41,4 +41,10 @@ export default class ModuleBase implements Module {
   destroy(): void {
     return;
   }
+
+  getNewZIndex() {
+    const zIndex = this.rootStore.rootState.layerIndex.value + 1;
+    this.rootStore.rootState.layerIndex.set(zIndex);
+    return zIndex;
+  }
 }

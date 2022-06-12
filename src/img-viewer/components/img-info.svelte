@@ -8,7 +8,7 @@
   export let src = '';
   export let description = '';
   export let visible = false;
-  export let zIndex: number | null;
+  export let zIndex: number | null = null;
 
   $: sectionList = [
     {

@@ -41,9 +41,15 @@
     }
   }
 
+  $: {
+    if (src) {
+      console.log('src changed', src);
+      init();
+    }
+  }
+
   onMount(async () => {
     await tick();
-    init();
     initTouchHandler();
   });
 

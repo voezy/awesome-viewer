@@ -37,9 +37,17 @@ export interface StoreType {
   [key: string]: Writable<unknown>
 }
 
+export interface ImgItem {
+  src: string;
+  desc?: string;
+  thumbnail?: string;
+}
+
 export interface ImgViewerState {
   [key: string]: unknown,
   src?: string;
+  description?: string;
+  list?: ImgItem[];
 }
 
 export interface BasicImgViewerOptions {
@@ -79,6 +87,10 @@ export interface RootState {
   deviceType: StateValue<DeviceType>,
   // touch support
   isSupportTouch: StateValue<boolean>,
+  // Image description
+  description: StateValue<string>;
+  // Image list
+  list: StateValue<ImgItem[]>,
 }
 
 export interface ImgViewerStore {

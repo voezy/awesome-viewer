@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import ImgViewer from '../../src/img-viewer/index';
+  import list from './list.ts';
 
   export let src = '';
   let imgViewer: ImgViewer;
@@ -11,6 +12,7 @@
       el: container,
       imgState: {
         src,
+        list,
       }
     });
   });
