@@ -43,7 +43,6 @@
 
   $: {
     if (src) {
-      console.log('src changed', src);
       init();
     }
   }
@@ -108,8 +107,9 @@
   function clearData() {
     basicWidth = null;
     basicHeight = null;
-    originalWidth = null
+    originalWidth = null;
     originalHeight = null;
+    visualWidth = null;
     visualHeight = null;
     imgStyle = '';
   }
