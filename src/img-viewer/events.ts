@@ -14,6 +14,7 @@ export enum Events {
   Module_ImgData = 'Module_ImgData',
   // window/document events
   Module_WindowResize = 'Module_WindowResize',
+  Module_SwitchToIndex = 'Module_SwitchToIndex',
 
   /**
    * img viewer is closed

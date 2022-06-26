@@ -22,8 +22,8 @@
         class:as-img-viewer-list--bottom={ anchor === 'bottom' }
         class:as-img-viewer-list--left={ anchor === 'left' }
       >
-        {#each list as item }
-          <div class="as-img-viewer-list__item" on:click={ () => onClickImg(item) }>
+        {#each list as item, i }
+          <div class="as-img-viewer-list__item" on:click={ () => onClickImg(i) }>
             <div
               class="as-img-viewer-list__item__img"
               style:background-image={`url(${item.thumbnail || item.src})`}
@@ -68,8 +68,8 @@
     dispatch('close');
   }
 
-  function onClickImg(item: ImgItem) {
-    dispatch('click-img', item);
+  function onClickImg(index: number) {
+    dispatch('click-img', { index });
   }
 </script>
 
@@ -99,8 +99,8 @@
   .as-img-viewer-list__wrap--left {
     .as-img-viewer-list__open-btn {
       position: absolute;
-      bottom: 10px;
-      left: 10px;
+      bottom: 20px;
+      left: 20px;
       width: 40px;
       height: 40px;
       line-height: 40px;

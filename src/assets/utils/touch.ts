@@ -22,6 +22,31 @@ export enum TouchEvents {
   DoubleTap = 'DoubleTap',
 }
 
+export enum DragOrientation {
+  Portrait = 'Portrait',
+  Horizonal = 'Horizonal',
+}
+
+export interface DragMoveEventData {
+  start: {
+    x: number;
+    y: number;
+  };
+  current: {
+    x: number;
+    y: number;
+  };
+  direction: {
+    right: boolean;
+    bottom: boolean;
+    initOrientation: DragOrientation,
+  };
+  distance: {
+    x: number;
+    y: number;
+  }
+}
+
 export class TouchHandler {
   Events: typeof TouchEvents = TouchEvents;
 
@@ -38,6 +63,8 @@ export class TouchHandler {
   _tuochStartTime: null | number = null;
 
   _isTapping = false;
+
+  _dragOrientation: null | DragOrientation = null;
 
   _lastTouchEndTime: null | number = null;
 
@@ -109,6 +136,17 @@ export class TouchHandler {
       x: touch.screenX - initTouch.screenX,
       y: touch.screenY - initTouch.screenY,
     };
+    let initOrientation;
+    if (!this._dragOrientation) {
+      if (Math.abs(distance.x) > Math.abs(distance.y)) {
+        initOrientation = DragOrientation.Horizonal;
+      } else {
+        initOrientation = DragOrientation.Portrait;
+      }
+      this._dragOrientation = initOrientation;
+    } else {
+      initOrientation = this._dragOrientation;
+    }
     this._eventEmitter.emit(this.Events.Drag, {
       start: {
         x: initTouch.screenX,
@@ -119,6 +157,7 @@ export class TouchHandler {
         y: touch.screenY,
       },
       direction: {
+        initOrientation,
         right: distance.x > 0,
         bottom: distance.y > 0,
       },
@@ -198,6 +237,7 @@ export class TouchHandler {
   initData = () => {
     this.initTouches = [];
     this._initPinchDistance = null;
+    this._dragOrientation = null;
   }
 
   destroy() {

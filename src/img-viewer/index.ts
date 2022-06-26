@@ -5,6 +5,7 @@ import PinchZoomModule from './modules/pinch-zoom/pinch-zoom';
 import InfoModule from './modules/info/info';
 import GlobalModule from './modules/global/global';
 import ListModule from './modules/list/list';
+import Gesture from './modules/gesture/gesture';
 import { isSupportTouch } from '../assets/utils/browser';
 import { isString } from '../assets/utils/type';
 import type {
@@ -33,6 +34,7 @@ export default class ImgViewer extends BasicImgViewer {
     };
     if (isSupportTouch) {
       defaultModules.pinchZoom = PinchZoomModule;
+      defaultModules.Gesture = Gesture;
     }
     return defaultModules;
   }

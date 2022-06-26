@@ -2,6 +2,7 @@
   import { onMount, tick, onDestroy, createEventDispatcher } from 'svelte';
   import { TouchHandler } from '../../assets/utils/touch';
   import { isSupportTouch } from '../../assets/utils/browser';
+  import { getBasicSize } from '../assets/utils/limitation';
   import type { TapEventCenterData } from '../index.d';
 
   export let src = '';
@@ -121,43 +122,16 @@
     updateVisualSize();
   }
 
-  function getDefaultMargin() {
-    if (!zoneEl) { return 0; }
-    return zoneEl.clientWidth * 0.1;
-  }
-
-  function limitWidth() {
-    if (!imgEl || !zoneEl) { return; }
-    basicWidth = zoneEl.clientWidth - getDefaultMargin() * 2;
-    basicHeight = basicWidth * (originalHeight as number / (originalWidth as number));
-  }
-
-  function limitHeight() {
-    if (!imgEl || !zoneEl) { return; }
-    basicHeight = zoneEl.clientHeight - getDefaultMargin() * 2;
-    basicWidth = basicHeight * (originalWidth as number / (originalHeight as number));
-  }
-
   function initImgSize() {
     if (!imgEl || !zoneEl) { return; }
-    const wider = imgEl.clientWidth >= zoneEl.clientWidth;
-    const higher = imgEl.clientHeight >= zoneEl.clientHeight;
-
-    if (wider && !higher) {
-      limitWidth();
-    } else if (!wider && higher) {
-      limitHeight();
-    } else if (wider && higher) {
-      const rate = (imgEl.clientWidth / zoneEl.clientWidth) / (imgEl.clientHeight / zoneEl.clientHeight);
-      if (rate >= 1) {
-        limitWidth();
-      } else {
-        limitHeight();
-      }
-    } else {
-      basicWidth = imgEl.clientWidth;
-      basicHeight = imgEl.clientHeight;
-    }
+    const basicSize = getBasicSize({
+      imgWidth: imgEl.naturalWidth,
+      imgHeight: imgEl.naturalHeight,
+      zoneWidth: zoneEl.clientWidth,
+      zoneHeight: zoneEl.clientHeight,
+    });
+    basicWidth = basicSize.basicWidth;
+    basicHeight = basicSize.basicHeight;
   }
 
   const updateVisualSize = () => {

@@ -8,7 +8,7 @@ type OnFinish = (value: number) => void;
 
 interface TweendMotionOptions {
   value: number;
-  onUpdate: OnUpdate;
+  onUpdate?: OnUpdate;
   onFinish?: OnFinish;
 }
 

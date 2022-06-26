@@ -1,11 +1,11 @@
 import ModuleBase from '../module-base';
 import Modal from '../../../modal/components/modal.svelte';
 import type { StateValue } from '../../store';
-import { TouchEvents } from '../../../assets/utils/touch';
+import { TouchEvents, DragOrientation } from '../../../assets/utils/touch';
+import type { DragMoveEventData } from '../../../assets/utils/touch';
 import type {
   ModuleOptions,
   BasicImgViewerOptions,
-  DragMoveEventData
 } from '../../index.d';
 
 interface ModalState {
@@ -67,7 +67,7 @@ export default class ModalContainer extends ModuleBase {
     const { event, data } = e as { event: string, data: unknown };
     switch (event) {
     case TouchEvents.Drag: {
-      this.onDrag(data);
+      this.onDrag(data as DragMoveEventData);
       break;
     }
     case TouchEvents.TouchEnd: {
@@ -98,6 +98,10 @@ export default class ModalContainer extends ModuleBase {
     return this.modal ? this.modal.getContainer() as HTMLElement : null;
   }
 
+  getZoneEl() {
+    return this.el?.querySelector('.as-img-viewer-zone');
+  }
+
   initCompEvents() {
     this.modal?.$on('close', this.onClickClose);
   }
@@ -121,9 +125,17 @@ export default class ModalContainer extends ModuleBase {
     });
   }
 
-  onDrag = (data: unknown) => {
-    if (this.zoneState.scaleRate.value > 1) { return; }
-    const { distance } = data as DragMoveEventData;
+  onDrag = (data: DragMoveEventData) => {
+    if (this.zoneState.scaleRate.value > 1) {
+      return;
+    }
+    if (data.direction.initOrientation === DragOrientation.Portrait) {
+      this.onPortraitDrag(data);
+    }
+  }
+
+  onPortraitDrag(data: DragMoveEventData) {
+    const { distance } = data;
     let swipeClosingProgress = Math.abs(distance.y) / (window.screen.availHeight / 4);
     swipeClosingProgress = swipeClosingProgress > 1 ? 1 : swipeClosingProgress;
     this.swipeClosingProgress = swipeClosingProgress;

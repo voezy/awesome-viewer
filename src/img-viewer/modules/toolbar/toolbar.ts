@@ -76,12 +76,9 @@ export default class ToolbarModule extends ModuleBase {
   }
 
   initEl() {
-    const container = this.container;
-    if (container instanceof HTMLElement) {
-      this.el = document.createElement('div');
-      container.appendChild(this.el);
-      this.isToolbarShowing = false;
-    }
+    this.el = document.createElement('div');
+    this.toMount(this.el, 'tool');
+    this.isToolbarShowing = false;
   }
 
   initComp() {
@@ -186,7 +183,9 @@ export default class ToolbarModule extends ModuleBase {
   }
 
   cleanEl() {
-    this.el && this.container?.removeChild(this.el);
+    if (this.el && this.el.parentNode) {
+      this.el.parentNode.removeChild(this.el);
+    }
   }
 
   destroyComp() {

@@ -38,7 +38,7 @@
   .as-img-viewer-module__toolbar-wrap {
     &--pc {
       position: absolute;
-      bottom: 50px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
     }

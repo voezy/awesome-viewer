@@ -8,11 +8,6 @@ import type {
 export default class ModalContainer extends ModuleBase {
   lastCenter: TapEventCenterData | null = null;
 
-  get container() {
-    const getContainer = this.moduleOptions?.getContainer;
-    return typeof getContainer === 'function' ? getContainer() : null;
-  }
-
   onInitReady() {
     this._init();
   }

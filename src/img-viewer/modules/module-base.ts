@@ -29,6 +29,10 @@ export default class ModuleBase implements Module {
     return this.moduleOptions.Events;
   }
 
+  get toMount() {
+    return this.moduleOptions.toMount;
+  }
+
   constructor(name: string, options: ModuleOptions) {
     this.name = name;
     this.moduleOptions = options;

@@ -8,6 +8,8 @@ interface InfoState {
 }
 
 export default class Info extends ModuleBase {
+  _el: HTMLElement | null = null;
+
   imgInfo: ImgInfo | null = null;
 
   get moduleState(): InfoState {
@@ -21,8 +23,11 @@ export default class Info extends ModuleBase {
 
   onInitReady() {
     const { width, height } = this.rootStore.imgData;
+    const el = document.createElement('div');
+    this.toMount(el, 'modal');
+    this._el = el;
     this.imgInfo = new ImgInfo({
-      target: this.container as HTMLElement,
+      target: el,
       props: {
         visible: this.moduleState?.visible.value,
         width: width.value,
@@ -45,6 +50,9 @@ export default class Info extends ModuleBase {
 
   destroy(): void {
     this.clearEvents();
+    if (this._el && this._el.parentNode) {
+      this._el.parentNode.removeChild(this._el);
+    }
   }
 
   subscribeStore() {

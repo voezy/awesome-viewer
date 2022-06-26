@@ -9,6 +9,8 @@ interface ListState {
 }
 
 export default class ModalContainer extends ModuleBase {
+  _el: HTMLElement | null = null;
+
   imgList: ImgList | null = null;
 
   get moduleState(): ListState {
@@ -20,14 +22,21 @@ export default class ModalContainer extends ModuleBase {
     return typeof getContainer === 'function' ? getContainer() : null;
   }
 
+  get list() {
+    return this.rootState.list.value;
+  }
+
   onInitReady() {
+    const el = document.createElement('div');
+    this.toMount(el, 'modal');
+    this._el = el;
     this.imgList = new ImgList({
-      target: this.container as HTMLElement,
+      target: el,
       props: {
         zIndex: this.getNewZIndex(),
         visible: this.moduleState.visible.value,
         anchor: isSupportTouch ? 'bottom' : 'left',
-        list: this.rootState.list,
+        list: this.rootState.list.value,
       },
     });
     this.subscribeStore();
@@ -44,6 +53,9 @@ export default class ModalContainer extends ModuleBase {
 
   destroy(): void {
     this.clearEvents();
+    if (this._el && this._el.parentNode) {
+      this._el.parentNode.removeChild(this._el);
+    }
   }
 
   subscribeStore() {
@@ -93,8 +105,11 @@ export default class ModalContainer extends ModuleBase {
   }
 
   onClickImg = (data: unknown) => {
-    const { detail: img } = data as { detail: ImgItem };
-    this.zoneState.src.set(img.src);
-    this.rootState.description.set((img.desc as string) || '');
+    const { detail } = data as { detail: { index: number } };
+    const index = detail.index;
+    if (typeof index !== 'number' || index >= this.list.length) {
+      return;
+    }
+    this.eventEmitter.emit(this.Events.Module_SwitchToIndex, { index });
   }
 }

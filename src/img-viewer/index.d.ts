@@ -14,23 +14,10 @@ export interface PinchEventData {
   scale: number;
   center: TapEventCenterData;
 }
-export interface DragMoveEventData {
-  start: {
-    x: number;
-    y: number;
-  };
-  current: {
-    x: number;
-    y: number;
-  };
-  direction: {
-    right: boolean;
-    bottom: boolean;
-  };
-  distance: {
-    x: number;
-    y: number;
-  }
+
+export enum MoveOrientation {
+  Portrait = 'Portrait',
+  Horizonal = 'Horizonal',
 }
 
 export interface StoreType {
@@ -91,6 +78,8 @@ export interface RootState {
   description: StateValue<string>;
   // Image list
   list: StateValue<ImgItem[]>,
+  // current image index in the list
+  curImgIndex: StateValue<number>
 }
 
 export interface ImgViewerStore {
@@ -107,6 +96,7 @@ export type Unsubscriber = () => void;
 export interface ModuleOptions {
   options: BasicImgViewerOptions;
   getContainer: () => HTMLElement;
+  toMount: (el: HTMLElement, type: string) => void;
   store: ImgViewerStore,
   eventEmitter: Events;
   Events: typeof ImgEvents;

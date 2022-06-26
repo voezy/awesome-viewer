@@ -18,11 +18,18 @@ import type {
   ImgItem,
 } from './index.d';
 import type { StateValue } from './store';
+import './assets/scss/basic-image-viewer.scss';
 
 export default class BasicImgViewer {
   _options: BasicImgViewerOptions;
 
   _container: HTMLElement | null = null;
+
+  _contentLayer: HTMLElement | null = null;
+
+  _toolLayer: HTMLElement | null = null;
+
+  _modalLayer: HTMLElement | null = null;
 
   _imgZone: ImgZone | null = null;
 
@@ -59,6 +66,7 @@ export default class BasicImgViewer {
         isSupportTouch: createState(isSupportTouch),
         description: createState(''),
         list: createState([] as ImgItem[]),
+        curImgIndex: createState(0),
       },
       modules: {},
     };
@@ -88,9 +96,31 @@ export default class BasicImgViewer {
     }
     if (container instanceof HTMLElement) {
       this._container = container;
+      this._initLayers();
     } else {
       console.error('Container element not found');
     }
+  }
+
+  _initLayers() {
+    const layers = ['content', 'tool', 'modal'];
+    layers.forEach((type) => {
+      if (!this._container) { return; }
+      const layer = document.createElement('div');
+      layer.classList.add(`as-basic-image-viewer__${type}-layer`);
+      this._container.appendChild(layer);
+      switch (type) {
+      case 'content':
+        this._contentLayer = layer;
+        break;
+      case 'tool':
+        this._toolLayer = layer;
+        break;
+      case 'modal':
+        this._modalLayer = layer;
+        break;
+      }
+    });
   }
 
   _initStore() {
@@ -117,7 +147,7 @@ export default class BasicImgViewer {
   _initComp() {
     const { src, rotateDeg, scaleRate } = this.store.zoneState;
     this._imgZone = new ImgZone({
-      target: this._container as HTMLElement,
+      target: this._contentLayer as HTMLElement,
       props: {
         src: src.value,
         rotateDeg: rotateDeg.value,
@@ -132,13 +162,15 @@ export default class BasicImgViewer {
   }
 
   _initEvents() {
-    this.on(this.Events.Module_ToRecover, this.onReceiveRecover);
+    this.on(this.Events.Module_ToRecover, this.toRecover);
+    this.on(this.Events.Module_SwitchToIndex, this.onSwitchToIndex);
     this._imgZone?.$on('touchEvent', this._onZoneTouchEvent);
     this._imgZone?.$on('imgData', this._onImgData);
   }
 
   _clearEvents() {
-    this.off(this.Events.Module_ToRecover, this.onReceiveRecover);
+    this.off(this.Events.Module_ToRecover, this.toRecover);
+    this.on(this.Events.Module_SwitchToIndex, this.onSwitchToIndex);
   }
 
   updateState(newViewerState: ImgViewerState) {
@@ -147,6 +179,9 @@ export default class BasicImgViewer {
     const { src, description, list } = newViewerState;
     if (src !== zoneState.src.value) {
       src && zoneState.src.set(src);
+      const list = this.store.rootState.list.value;
+      const index = list?.length > 0 ? list.findIndex((item) => item.src === src) : 0;
+      this.store.rootState.curImgIndex.set(index);
       this._imgZone?.init();
     }
     if (isArray(list)) {
@@ -164,6 +199,20 @@ export default class BasicImgViewer {
   invokeZone = (method: string, ...args: unknown[]) => {
     if (this._imgZone && typeof this._imgZone[method] === 'function') {
       this._imgZone[method](...args);
+    }
+  }
+
+  toMount = (el: HTMLElement, type: string) => {
+    switch (type) {
+    case 'content':
+      this._contentLayer?.appendChild(el);
+      break;
+    case 'tool':
+      this._toolLayer?.appendChild(el);
+      break;
+    case 'modal':
+      this._modalLayer?.appendChild(el);
+      break;
     }
   }
 
@@ -191,10 +240,25 @@ export default class BasicImgViewer {
     this._eventEmitter?.emit(this.Events.Module_ImgData, { width, height });
   }
 
-  onReceiveRecover = () => {
+  toRecover = () => {
     this.store.zoneState.rotateDeg.set(0);
     this.store.zoneState.scaleRate.tweened(1);
   };
+
+  onSwitchToIndex = (data: unknown) => {
+    const targetIndex = (data as { index: number }).index;
+    const listLen = this.store.rootState.list.value.length;
+    if (typeof targetIndex !== 'number' || !listLen) {
+      return;
+    }
+    if (targetIndex >= 0 && targetIndex < listLen) {
+      const imgItem = this.store.rootState.list.value[targetIndex];
+      this.toRecover();
+      this.store.rootState.curImgIndex.set(targetIndex);
+      this.store.zoneState.src.set(imgItem.src);
+      this.store.rootState.description.set(imgItem.desc || '');
+    }
+  }
 
   on(eventName: string | symbol, listener: (...args: unknown[]) => void) {
     return this._eventEmitter?.on(eventName, listener);
@@ -234,6 +298,7 @@ export default class BasicImgViewer {
     }
     const module = new ModuleClass(name, {
       getContainer: () => this._container as HTMLElement,
+      toMount: this.toMount,
       options: this._options,
       store: this.store,
       eventEmitter: this._eventEmitter as Events,
