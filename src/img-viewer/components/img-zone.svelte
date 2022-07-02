@@ -14,8 +14,6 @@
   let isImgError = false;
   let zoneEl: HTMLElement;
   let imgEl: HTMLImageElement;
-  let originalWidth: number | null;
-  let originalHeight: number | null;
   let basicWidth: number | null;
   let basicHeight: number | null;
   let visualWidth: number | null;
@@ -108,16 +106,12 @@
   function clearData() {
     basicWidth = null;
     basicHeight = null;
-    originalWidth = null;
-    originalHeight = null;
     visualWidth = null;
     visualHeight = null;
     imgStyle = '';
   }
 
   function initImgData() {
-    originalWidth = imgEl.naturalWidth;
-    originalHeight = imgEl.naturalHeight;
     initImgSize();
     updateVisualSize();
   }

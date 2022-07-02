@@ -15,6 +15,8 @@ export enum Events {
   // window/document events
   Module_WindowResize = 'Module_WindowResize',
   Module_SwitchToIndex = 'Module_SwitchToIndex',
+  // img container mouse events forwarding
+  Module_MouseEvent = 'Module_MouseEvent',
 
   /**
    * img viewer is closed

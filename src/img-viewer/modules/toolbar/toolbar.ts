@@ -70,11 +70,6 @@ export default class ToolbarModule extends ModuleBase {
     }
   }
 
-  get container() {
-    const getContainer = this.moduleOptions?.getContainer;
-    return typeof getContainer === 'function' ? getContainer() : null;
-  }
-
   initEl() {
     this.el = document.createElement('div');
     this.toMount(this.el, 'tool');
@@ -102,23 +97,19 @@ export default class ToolbarModule extends ModuleBase {
     this.toolbar?.$on('back', this.onClickBack);
     this.toolbar?.$on('info', this.onClickInfo);
     this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Closed, this.onClosed);
-    const container = this.container;
     if (this.rootState.isSupportTouch.value) {
       this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
     } else {
-      container?.addEventListener('mousemove', this.onMouseMove);
-      container?.addEventListener('mouseout', this.onMouseOut);
+      this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Module_MouseEvent, this.onMouseEvent);
     }
   }
 
   clearEvents() {
     this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Closed, this.onClosed);
-    const container = this.container;
     if (this.rootState.isSupportTouch.value) {
       this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
     } else {
-      container?.removeEventListener('mousemove', this.onMouseMove);
-      container?.removeEventListener('mouseout', this.onMouseOut);
+      this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Module_MouseEvent, this.onMouseEvent);
     }
   }
 
@@ -144,7 +135,16 @@ export default class ToolbarModule extends ModuleBase {
   onTouchEvent = (e: unknown) => {
     const { event } = e as { event: string, data: unknown };
     if (event === TouchEvents.Tap) {
-      this.onClickContainer();
+      this.onTapImg();
+    }
+  }
+
+  onMouseEvent = (e: unknown) => {
+    const { event } = e as { event: string, data: unknown };
+    if (event === 'MouseMove') {
+      this.onMouseMove();
+    } else if (event === 'MouseOut') {
+      this.onMouseOut();
     }
   }
 
@@ -240,7 +240,7 @@ export default class ToolbarModule extends ModuleBase {
     this.moduleOptions.eventEmitter?.emit(this.moduleOptions.Events.Module_ToOpenInfo);
   }
 
-  onClickContainer = () => {
+  onTapImg = () => {
     this.isToolbarShowing = !this.isToolbarShowing;
   }
 
