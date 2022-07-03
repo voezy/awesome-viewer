@@ -3,7 +3,7 @@
   class:as-img-viewer-list__wrap--bottom={ anchor === 'bottom' }
   class:as-img-viewer-list__wrap--left={ anchor === 'left' }
 >
-  {#if !visible}
+  {#if list && list.length > 1 && !visible}
     <button class="as-img-viewer-list__open-btn" on:click={onClickOpen}>
       <i class="ri-layout-grid-fill"></i>
     </button>
