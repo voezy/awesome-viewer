@@ -6,8 +6,8 @@ export enum Events {
   Module_ToRecover = 'Module_ToRecover',
   // To close img viewer
   Module_ToClose = 'Module_ToClose',
-  // img zone touch events forwarding
-  Module_TouchEvent = 'Module_TouchEvent',
+  // img zone gesture events forwarding
+  Module_GestureEvent = 'Module_GestureEvent',
   // To open image information drawer
   Module_ToOpenInfo = 'Module_ToOpenInfo',
   // Image data forward

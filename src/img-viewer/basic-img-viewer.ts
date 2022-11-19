@@ -164,7 +164,7 @@ export default class BasicImgViewer {
   _initEvents() {
     this.on(this.Events.Module_ToRecover, this.toRecover);
     this.on(this.Events.Module_SwitchToIndex, this.onSwitchToIndex);
-    this._imgZone?.$on('touchEvent', this._onZoneTouchEvent);
+    this._imgZone?.$on('gestureEvent', this._onZoneGestureEvent);
     this._imgZone?.$on('imgData', this._onImgData);
   }
 
@@ -223,10 +223,10 @@ export default class BasicImgViewer {
     }
   }
 
-  _onZoneTouchEvent = (e: unknown) => {
+  _onZoneGestureEvent = (e: unknown) => {
     const { detail } = e as { detail: unknown };
     const { event, data } = detail as { event: string, data: unknown };
-    this._eventEmitter?.emit(this.Events.Module_TouchEvent, {
+    this._eventEmitter?.emit(this.Events.Module_GestureEvent, {
       event,
       data
     });

@@ -1,8 +1,8 @@
 import ModuleBase from '../module-base';
 import Modal from '../../../modal/components/modal.svelte';
 import type { StateValue } from '../../store';
-import { TouchEvents, DragOrientation } from '../../../assets/utils/touch';
-import type { DragMoveEventData } from '../../../assets/utils/touch';
+import { GestureEvents, DragOrientation } from '../../../assets/utils/gesture';
+import type { DragMoveEventData } from '../../../assets/utils/gesture';
 import type {
   ModuleOptions,
   BasicImgViewerOptions,
@@ -55,26 +55,26 @@ export default class ModalContainer extends ModuleBase {
 
   initEvents() {
     this.moduleOptions.eventEmitter?.on(this.moduleOptions.Events.Module_ToClose, this.onClickClose);
-    this.moduleOptions.eventEmitter?.on(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+    this.moduleOptions.eventEmitter?.on(this.moduleOptions.Events.Module_GestureEvent, this.onGestureEvent);
   }
 
   clearEvents() {
     this.moduleOptions.eventEmitter?.off(this.moduleOptions.Events.Module_ToClose, this.onClickClose);
-    this.moduleOptions.eventEmitter?.off(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+    this.moduleOptions.eventEmitter?.off(this.moduleOptions.Events.Module_GestureEvent, this.onGestureEvent);
   }
 
-  onTouchEvent = (e: unknown) => {
+  onGestureEvent = (e: unknown) => {
     const { event, data } = e as { event: string, data: unknown };
     switch (event) {
-    case TouchEvents.Drag: {
+    case GestureEvents.Drag: {
       this.onDrag(data as DragMoveEventData);
       break;
     }
-    case TouchEvents.TouchEnd: {
+    case GestureEvents.TouchEnd: {
       this.cancelSwipeHide();
       break;
     }
-    case TouchEvents.TouchCancel: {
+    case GestureEvents.TouchCancel: {
       this.cancelSwipeHide();
       break;
     }

@@ -1,5 +1,5 @@
 import ModuleBase from '../module-base';
-import { TouchEvents } from '../../../assets/utils/touch';
+import { GestureEvents } from '../../../assets/utils/gesture';
 import type {
   TapEventCenterData,
   PinchEventData,
@@ -14,18 +14,18 @@ export default class ModalContainer extends ModuleBase {
 
   _init() {
     if (this.rootState.isSupportTouch.value) {
-      this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+      this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Module_GestureEvent, this.onGestureEvent);
     }
   }
 
-  onTouchEvent = (e: unknown) => {
+  onGestureEvent = (e: unknown) => {
     const { event, data } = e as { event: string, data: unknown };
     switch (event) {
-    case TouchEvents.Pinch: {
+    case GestureEvents.Pinch: {
       this.onPinch(data);
       break;
     }
-    case TouchEvents.DoubleTap: {
+    case GestureEvents.DoubleTap: {
       this.onDoubleTap();
       break;
     }
@@ -58,7 +58,7 @@ export default class ModalContainer extends ModuleBase {
 
   destroy() {
     if (this.rootState.isSupportTouch.value) {
-      this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+      this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Module_GestureEvent, this.onGestureEvent);
     }
   }
 }

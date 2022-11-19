@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount, tick, onDestroy, createEventDispatcher } from 'svelte';
-  import { TouchHandler } from '../../assets/utils/touch';
-  import { isSupportTouch } from '../../assets/utils/browser';
+  import { GestureHandler } from '../../assets/utils/gesture';
   import { getBasicSize } from '../assets/utils/limitation';
   import type { TapEventCenterData } from '../index.d';
 
@@ -22,8 +21,8 @@
   let lastPageY: number;
   let isDragging = false;
   let imgStyle = '';
-  let touchHandler: TouchHandler | null = null;
-  let touchEventForwarder: { [key: string]: (...args: unknown[]) => void } = {};
+  let gestureHandler: GestureHandler | null = null;
+  let gestureEventForwarder: { [key: string]: (...args: unknown[]) => void } = {};
   const dispatch = createEventDispatcher();
 
   interface PositioningImgParams {
@@ -48,11 +47,11 @@
 
   onMount(async () => {
     await tick();
-    initTouchHandler();
+    initGestureHandler();
   });
 
   onDestroy(() => {
-    clearTouchHandler();
+    clearGestureHandler();
   });
 
   export async function init() {
@@ -64,35 +63,33 @@
     }
   }
 
-  function initTouchHandler() {
-    if (isSupportTouch) {
-      touchHandler =  new TouchHandler({
-        el: zoneEl,
-        preventDefault: () => {
-          return scaleRate <= 1;
-        },
-      });
-      for (const event in touchHandler.Events) {
-        const handler = touchEvenDispatcher(event);
-        touchEventForwarder[event] = handler;
-        touchHandler?.on(event, handler);
-      }
-      touchHandler.on(touchHandler.Events.TouchEnd, onTouchEnd);
+  function initGestureHandler() {
+    gestureHandler =  new GestureHandler({
+      el: zoneEl,
+      preventDefault: () => {
+        return scaleRate <= 1;
+      },
+    });
+    for (const event in gestureHandler.Events) {
+      const handler = gestureEventDispatcher(event);
+      gestureEventForwarder[event] = handler;
+      gestureHandler?.on(event, handler);
     }
+    gestureHandler.on(gestureHandler.Events.TouchEnd, onTouchEnd);
   }
 
-  function clearTouchHandler() {
-    for (const event in touchEventForwarder) {
-      const handler = touchEventForwarder[event];
-      touchHandler?.off(event, handler);
+  function clearGestureHandler() {
+    for (const event in gestureEventForwarder) {
+      const handler = gestureEventForwarder[event];
+      gestureHandler?.off(event, handler);
     }
-    touchHandler?.off(touchHandler.Events.TouchEnd, onTouchEnd);
-    touchHandler?.destroy();
+    gestureHandler?.off(gestureHandler.Events.TouchEnd, onTouchEnd);
+    gestureHandler?.destroy();
   }
 
-  function touchEvenDispatcher(event: string) {
+  function gestureEventDispatcher(event: string) {
     return function(e: unknown) {
-      dispatch('touchEvent', {
+      dispatch('gestureEvent', {
         event,
         data: e
       });
@@ -100,7 +97,7 @@
   }
 
   function onTouchEnd() {
-    touchHandler && (touchHandler.baseScaleRate = scaleRate);
+    gestureHandler && (gestureHandler.baseScaleRate = scaleRate);
   }
 
   function clearData() {

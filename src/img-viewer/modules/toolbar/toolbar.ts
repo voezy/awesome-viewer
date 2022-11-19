@@ -1,6 +1,6 @@
 import ModuleBase from '../module-base';
 import Toolbar from '../../components/img-toolbar-container.svelte';
-import { TouchEvents } from '../../../assets/utils/touch';
+import { GestureEvents } from '../../../assets/utils/gesture';
 import { download } from '../../../assets/utils/net';
 import type TweenedMotion from '../../motion/tweened';
 
@@ -98,7 +98,7 @@ export default class ToolbarModule extends ModuleBase {
     this.toolbar?.$on('info', this.onClickInfo);
     this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Closed, this.onClosed);
     if (this.rootState.isSupportTouch.value) {
-      this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+      this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Module_GestureEvent, this.onGestureEvent);
     } else {
       this.moduleOptions.eventEmitter.on(this.moduleOptions.Events.Module_MouseEvent, this.onMouseEvent);
     }
@@ -107,7 +107,7 @@ export default class ToolbarModule extends ModuleBase {
   clearEvents() {
     this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Closed, this.onClosed);
     if (this.rootState.isSupportTouch.value) {
-      this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+      this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Module_GestureEvent, this.onGestureEvent);
     } else {
       this.moduleOptions.eventEmitter.off(this.moduleOptions.Events.Module_MouseEvent, this.onMouseEvent);
     }
@@ -132,9 +132,9 @@ export default class ToolbarModule extends ModuleBase {
     });
   }
 
-  onTouchEvent = (e: unknown) => {
+  onGestureEvent = (e: unknown) => {
     const { event } = e as { event: string, data: unknown };
-    if (event === TouchEvents.Tap) {
+    if (event === GestureEvents.Tap) {
       this.onTapImg();
     }
   }

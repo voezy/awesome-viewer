@@ -1,8 +1,8 @@
 import ModuleBase from '../module-base';
-import { TouchEvents, DragOrientation } from '../../../assets/utils/touch';
+import { GestureEvents, DragOrientation } from '../../../assets/utils/gesture';
 import { getBasicSize } from '../../assets/utils/limitation';
 import { circOut } from 'svelte/easing';
-import type { DragMoveEventData } from '../../../assets/utils/touch';
+import type { DragMoveEventData } from '../../../assets/utils/gesture';
 import type TweenedMotion from '../../motion/tweened';
 import type {
   ModuleOptions,
@@ -80,7 +80,7 @@ export default class Gesture extends ModuleBase {
   }
 
   initEvents() {
-    this.moduleOptions.eventEmitter?.on(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+    this.moduleOptions.eventEmitter?.on(this.moduleOptions.Events.Module_GestureEvent, this.onGestureEvent);
     if (this.prevImgEl) {
       this.prevImgEl.onload = this.onPrevImgLoaded;
       this.prevImgEl.complete && this.onPrevImgLoaded();
@@ -92,7 +92,7 @@ export default class Gesture extends ModuleBase {
   }
 
   clearEvents() {
-    this.moduleOptions.eventEmitter?.off(this.moduleOptions.Events.Module_TouchEvent, this.onTouchEvent);
+    this.moduleOptions.eventEmitter?.off(this.moduleOptions.Events.Module_GestureEvent, this.onGestureEvent);
     if (this.prevImgEl) {
       this.prevImgEl.removeEventListener('load', this.onPrevImgLoaded);
     }
@@ -138,18 +138,18 @@ export default class Gesture extends ModuleBase {
     this.nextImgEl.classList.remove(LOADING_IMG_CLASS);
   }
 
-  onTouchEvent = (e: unknown) => {
+  onGestureEvent = (e: unknown) => {
     const { event, data } = e as { event: string, data: unknown };
     switch (event) {
-    case TouchEvents.Drag: {
+    case GestureEvents.Drag: {
       this.onDrag(data as DragMoveEventData);
       break;
     }
-    case TouchEvents.TouchEnd: {
+    case GestureEvents.TouchEnd: {
       this.cancelDrag();
       break;
     }
-    case TouchEvents.TouchCancel: {
+    case GestureEvents.TouchCancel: {
       this.cancelDrag();
       break;
     }

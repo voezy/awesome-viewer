@@ -1,10 +1,10 @@
 import Events from 'events';
 
-interface TouchHandlerBaseOptions {
+interface GestureHandlerBaseOptions {
   preventDefault?: () => boolean;
 }
 
-interface TouchHandlerOptions extends TouchHandlerBaseOptions {
+interface GestureHandlerOptions extends GestureHandlerBaseOptions {
   el: HTMLElement,
 }
 
@@ -13,7 +13,7 @@ interface Point {
   y: number;
 }
 
-export enum TouchEvents {
+export enum GestureEvents {
   Drag = 'Drag',
   Pinch = 'Pinch',
   TouchEnd = 'TouchEnd',
@@ -47,8 +47,8 @@ export interface DragMoveEventData {
   }
 }
 
-export class TouchHandler {
-  Events: typeof TouchEvents = TouchEvents;
+export class GestureHandler {
+  Events: typeof GestureEvents = GestureEvents;
 
   _el: HTMLElement;
 
@@ -72,7 +72,7 @@ export class TouchHandler {
 
   _tapTimer: null | number = null;
 
-  constructor(options: TouchHandlerOptions) {
+  constructor(options: GestureHandlerOptions) {
     const { el, preventDefault } = options;
     this._el = el;
     typeof preventDefault === 'function' && (this._preventDefault = preventDefault);
