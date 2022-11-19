@@ -8,9 +8,9 @@ interface TouchHandlerOptions extends TouchHandlerBaseOptions {
   el: HTMLElement,
 }
 
-interface TouchInfo {
-  screenX: number;
-  screenY: number;
+interface Point {
+  x: number;
+  y: number;
 }
 
 export enum TouchEvents {
@@ -52,7 +52,7 @@ export class TouchHandler {
 
   _el: HTMLElement;
 
-  initTouches: TouchInfo[] = [];
+  initTouches: Touch[] = [];
 
   _eventEmitter = new Events();
 
@@ -97,7 +97,7 @@ export class TouchHandler {
 
   addEvents() {
     this._el.addEventListener('touchstart', this.onTouchStart);
-    this._el.addEventListener('touchmove', this.onTouchMove);
+    this._el.addEventListener('touchmove', this.onTouchMove, { passive: false });
     this._el.addEventListener('touchend', this.onTouchEnd);
     this._el.addEventListener('touchcancel', this.onTouchCancel);
   }
@@ -165,7 +165,12 @@ export class TouchHandler {
     });
   }
 
+  getDistance(pointA: Point, pointB: Point) {
+    return Math.hypot(pointA.x - pointB.x, pointA.y - pointB.y);
+  }
+
   onMultiTouchMove(e: TouchEvent) {
+    e.preventDefault();
     if (e.touches?.length < 2) { return; }
     const touch0 = e.touches[0];
     const touch1 = e.touches[1];
@@ -174,9 +179,21 @@ export class TouchHandler {
       this.initTouches = [touch0, touch1];
       return;
     } else if (typeof this._initPinchDistance !== 'number') {
-      this._initPinchDistance = Math.hypot(initTouch0.screenX - initTouch1.screenX, initTouch0.screenY - initTouch1.screenY);
+      this._initPinchDistance = this.getDistance({
+        x: initTouch0.screenX,
+        y: initTouch0.screenY
+      }, {
+        x: initTouch1.screenX,
+        y: initTouch1.screenY
+      });
     }
-    const curDistance = Math.hypot(touch0.screenX - touch1.screenX, touch0.screenY - touch1.screenY);
+    const curDistance = this.getDistance({
+      x: touch0.screenX,
+      y: touch0.screenY
+    }, {
+      x: touch1.screenX, y:
+      touch1.screenY
+    });
     const scaleRateDis = curDistance / this._initPinchDistance;
     let centerX = null;
     let centerY = null;
