@@ -2,7 +2,9 @@
   import { onMount, tick, onDestroy, createEventDispatcher } from 'svelte';
   import { GestureHandler } from '../../assets/utils/gesture';
   import { getBasicSize } from '../assets/utils/limitation';
+  import { isSupportTouch } from '../../assets/utils/browser';
   import type { TapEventCenterData } from '../index.d';
+  import type { DragMoveEventData } from '../../assets/utils/gesture';
 
   export let src = '';
   export let scaleRate = 1;
@@ -17,9 +19,6 @@
   let basicHeight: number | null;
   let visualWidth: number | null;
   let visualHeight: number | null;
-  let lastPageX: number;
-  let lastPageY: number;
-  let isDragging = false;
   let imgStyle = '';
   let gestureHandler: GestureHandler | null = null;
   let gestureEventForwarder: { [key: string]: (...args: unknown[]) => void } = {};
@@ -75,7 +74,10 @@
       gestureEventForwarder[event] = handler;
       gestureHandler?.on(event, handler);
     }
-    gestureHandler.on(gestureHandler.Events.TouchEnd, onTouchEnd);
+    gestureHandler.on(gestureHandler.Events.ScaleStop, onScaleStop);
+    if (!isSupportTouch) {
+     gestureHandler.on(gestureHandler.Events.Drag, onDrag);
+    }
   }
 
   function clearGestureHandler() {
@@ -83,7 +85,10 @@
       const handler = gestureEventForwarder[event];
       gestureHandler?.off(event, handler);
     }
-    gestureHandler?.off(gestureHandler.Events.TouchEnd, onTouchEnd);
+    gestureHandler?.off(gestureHandler.Events.ScaleStop, onScaleStop);
+    if (!isSupportTouch) {
+      gestureHandler?.off(gestureHandler.Events.Drag, onDrag);
+    }
     gestureHandler?.destroy();
   }
 
@@ -96,8 +101,25 @@
     }
   }
 
-  function onTouchEnd() {
+  function onScaleStop() {
     gestureHandler && (gestureHandler.baseScaleRate = scaleRate);
+  }
+
+  function onDrag(data: unknown) {
+    const distX = (data as DragMoveEventData).stepDistance.x;
+    const distY = (data as DragMoveEventData).stepDistance.y;
+    const dragToLeft = distX > 0;
+    const allowDragToLeft = dragToLeft && zoneEl?.scrollLeft - distX >= 0;
+    const allowDragToRight = !dragToLeft && zoneEl.scrollLeft + zoneEl.clientWidth - distX <= imgEl.clientWidth;
+    if (allowDragToLeft || allowDragToRight) {
+      zoneEl.scrollLeft -= distX;
+    }
+    const dragToTop = distY > 0;
+    const allowDragToTop = dragToTop && zoneEl?.scrollTop - distY >= 0;
+    const allowDragToBottom = !dragToTop && zoneEl.scrollTop + zoneEl.clientHeight - distX <= imgEl.clientHeight;
+    if (allowDragToTop || allowDragToBottom) {
+      zoneEl.scrollTop -= distY;
+    }
   }
 
   function clearData() {
@@ -211,48 +233,9 @@
   function onError() {
     isImgError = true;
   }
-
-  function onMouseDown(e: MouseEvent) {
-    isDragging = true;
-    lastPageX = e.pageX;
-    lastPageY = e.pageY;
-  }
-
-  function onMouseMove(e: MouseEvent) {
-    e.preventDefault();
-    if (!isDragging) { return; }
-    const curPageX = e.pageX;
-    const curPageY = e.pageY;
-    const distX = curPageX - lastPageX;
-    const distY = curPageY - lastPageY;
-    const dragToLeft = distX > 0;
-    const allowDragToLeft = dragToLeft && zoneEl?.scrollLeft - distX >= 0;
-    const allowDragToRight = !dragToLeft && zoneEl.scrollLeft + zoneEl.clientWidth - distX <= imgEl.clientWidth;
-    if (allowDragToLeft || allowDragToRight) {
-      zoneEl.scrollLeft -= distX;
-    }
-    const dragToTop = distY > 0;
-    const allowDragToTop = dragToTop && zoneEl?.scrollTop - distY >= 0;
-    const allowDragToBottom = !dragToTop && zoneEl.scrollTop + zoneEl.clientHeight - distX <= imgEl.clientHeight;
-    if (allowDragToTop || allowDragToBottom) {
-      zoneEl.scrollTop -= distY;
-    }
-    lastPageX = curPageX;
-    lastPageY = curPageY;
-  }
-
-  function onMouseUp() {
-    if (!isDragging) { return; }
-    isDragging = false;
-  }
-
-  function onMouseLeaveZone() {
-    if (!isDragging) { return; }
-    isDragging = false;
-  }
 </script>
 
-<div bind:this={zoneEl} class="as-img-viewer-zone" on:mouseleave={onMouseLeaveZone}>
+<div bind:this={zoneEl} class="as-img-viewer-zone">
   {#if src }
     <div
       class="as-img-viewer-zone__img-wrap"
@@ -269,9 +252,6 @@
         style={imgStyle}
         on:load={onLoaded}
         on:error={onError}
-        on:mousedown={onMouseDown}
-        on:mousemove={onMouseMove}
-        on:mouseup={onMouseUp}
       />
     </div>
   {/if}
@@ -293,6 +273,7 @@
     text-align: center;
     overflow: auto;
     white-space: nowrap;
+    user-select: none;
   }
   .as-img-viewer-zone__height {
     display: inline-block;

@@ -66,18 +66,12 @@ export default class ModalContainer extends ModuleBase {
   onGestureEvent = (e: unknown) => {
     const { event, data } = e as { event: string, data: unknown };
     switch (event) {
-    case GestureEvents.Drag: {
+    case GestureEvents.Drag:
       this.onDrag(data as DragMoveEventData);
       break;
-    }
-    case GestureEvents.TouchEnd: {
+    case GestureEvents.DragStop:
       this.cancelSwipeHide();
       break;
-    }
-    case GestureEvents.TouchCancel: {
-      this.cancelSwipeHide();
-      break;
-    }
     }
   }
 
@@ -135,8 +129,8 @@ export default class ModalContainer extends ModuleBase {
   }
 
   onPortraitDrag(data: DragMoveEventData) {
-    const { distance } = data;
-    let swipeClosingProgress = Math.abs(distance.y) / (window.screen.availHeight / 4);
+    const { fullDistance } = data;
+    let swipeClosingProgress = Math.abs(fullDistance.y) / (window.screen.availHeight / 4);
     swipeClosingProgress = swipeClosingProgress > 1 ? 1 : swipeClosingProgress;
     this.swipeClosingProgress = swipeClosingProgress;
     this.setHidingProgress();

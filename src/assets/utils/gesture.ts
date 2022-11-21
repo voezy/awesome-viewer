@@ -1,4 +1,5 @@
 import Events from 'events';
+import { isSupportTouch } from './browser';
 
 interface GestureHandlerBaseOptions {
   preventDefault?: () => boolean;
@@ -16,10 +17,10 @@ interface Point {
 export enum GestureEvents {
   Drag = 'Drag',
   Pinch = 'Pinch',
-  TouchEnd = 'TouchEnd',
-  TouchCancel = 'TouchCancel',
+  DragStop = 'DragStop',
   Tap = 'Tap',
   DoubleTap = 'DoubleTap',
+  ScaleStop = 'ScaleStop',
 }
 
 export enum DragOrientation {
@@ -28,20 +29,16 @@ export enum DragOrientation {
 }
 
 export interface DragMoveEventData {
-  start: {
-    x: number;
-    y: number;
-  };
-  current: {
-    x: number;
-    y: number;
-  };
   direction: {
     right: boolean;
     bottom: boolean;
     initOrientation: DragOrientation,
   };
-  distance: {
+  fullDistance: {
+    x: number;
+    y: number;
+  },
+  stepDistance: {
     x: number;
     y: number;
   }
@@ -54,6 +51,12 @@ export class GestureHandler {
 
   initTouches: Touch[] = [];
 
+  _lastTouches: Touch[] = [];
+
+  initMouseEvent: MouseEvent | null = null;
+
+  lastMouseMove: MouseEvent | null = null;
+
   _eventEmitter = new Events();
 
   _baseScaleRate = 1;
@@ -63,6 +66,12 @@ export class GestureHandler {
   _tuochStartTime: null | number = null;
 
   _isTapping = false;
+
+  _isTouchDragging = false;
+
+  _isMouseDragging = false;
+
+  _isScaling = false;
 
   _dragOrientation: null | DragOrientation = null;
 
@@ -96,22 +105,105 @@ export class GestureHandler {
   }
 
   addEvents() {
-    this._el.addEventListener('touchstart', this.onTouchStart);
-    this._el.addEventListener('touchmove', this.onTouchMove, { passive: false });
-    this._el.addEventListener('touchend', this.onTouchEnd);
-    this._el.addEventListener('touchcancel', this.onTouchCancel);
+    if (!isSupportTouch) {
+      this._el.addEventListener('mousedown', this.onMouseDown);
+      this._el.addEventListener('mouseup', this.onMouseUp);
+      this._el.addEventListener('mouseleave', this.onMouseLeave);
+      this._el.addEventListener('mousemove', this.onMouseMove);
+    } else  {
+      this._el.addEventListener('touchstart', this.onTouchStart);
+      this._el.addEventListener('touchmove', this.onTouchMove, { passive: false });
+      this._el.addEventListener('touchend', this.onTouchEnd);
+      this._el.addEventListener('touchcancel', this.onTouchCancel);
+    }
   }
 
   removeEvents() {
-    this._el.removeEventListener('touchstart', this.onTouchStart);
-    this._el.removeEventListener('touchmove', this.onTouchMove);
-    this._el.removeEventListener('touchend', this.onTouchEnd);
-    this._el.removeEventListener('touchcancel', this.onTouchCancel);
+    if (!isSupportTouch) {
+      this._el.removeEventListener('mousedown', this.onMouseDown);
+      this._el.removeEventListener('mouseup', this.onMouseUp);
+      this._el.removeEventListener('mouseleave', this.onMouseLeave);
+      this._el.removeEventListener('mousemove', this.onMouseMove);
+    } else  {
+      this._el.removeEventListener('touchstart', this.onTouchStart);
+      this._el.removeEventListener('touchmove', this.onTouchMove);
+      this._el.removeEventListener('touchend', this.onTouchEnd);
+      this._el.removeEventListener('touchcancel', this.onTouchCancel);
+    }
   }
 
-  onTouchStart = () => {
+  onMouseDown = (e: MouseEvent) => {
+    this._isMouseDragging = true;
+    this.lastMouseMove = e;
+    this.initMouseEvent = e;
+  }
+
+  onMouseUp = () => {
+    if (!this._isMouseDragging) {
+      return;
+    } else {
+      this._eventEmitter.emit(this.Events.DragStop);
+    }
+    this.clearMouseData();
+  }
+
+  onMouseLeave = () => {
+    if (!this._isMouseDragging) {
+      return;
+    } else {
+      this._eventEmitter.emit(this.Events.DragStop);
+    }
+    this.clearMouseData();
+  }
+
+  onMouseMove = (e: MouseEvent) => {
+    if (!this.initMouseEvent || !this._isMouseDragging) { return; }
+    if (!this.lastMouseMove) {
+      this.lastMouseMove = e;
+      return;
+    }
+    e.preventDefault();
+    const fullDistance = {
+      x: e.screenX - this.initMouseEvent.screenX,
+      y: e.screenY - this.initMouseEvent.screenY,
+    };
+    const stepDistance = {
+      x: e.screenX - this.lastMouseMove.screenX,
+      y: e.screenY - this.lastMouseMove.screenY,
+    };
+    let initOrientation;
+    if (!this._dragOrientation) {
+      if (Math.abs(fullDistance.x) > Math.abs(fullDistance.y)) {
+        initOrientation = DragOrientation.Horizonal;
+      } else {
+        initOrientation = DragOrientation.Portrait;
+      }
+      this._dragOrientation = initOrientation;
+    } else {
+      initOrientation = this._dragOrientation;
+    }
+    this.lastMouseMove = e;
+    this._eventEmitter.emit(this.Events.Drag, {
+      direction: {
+        initOrientation,
+        right: fullDistance.x > 0,
+        bottom: fullDistance.y > 0,
+      },
+      fullDistance,
+      stepDistance,
+    });
+  }
+
+  clearMouseData = () => {
+    this._isMouseDragging = false;
+    this.lastMouseMove = null;
+    this.initMouseEvent = null;
+  }
+
+  onTouchStart = (e: TouchEvent) => {
     this._isTapping = true;
     this._tuochStartTime = Date.now();
+    this._lastTouches = [...e.touches];
   }
 
   onTouchMove = (e: TouchEvent) => {
@@ -126,19 +218,27 @@ export class GestureHandler {
 
   onSingleTouchMove(e: TouchEvent) {
     if (e.touches?.length !== 1) { return; }
+    if (!this._isTouchDragging) {
+      this._isTouchDragging = true;
+    }
     const touch = e.touches[0];
     const [initTouch] = this.initTouches;
+    const [lastTouch] = this._lastTouches;
     if (!initTouch) {
       this.initTouches = [touch];
       return;
     }
-    const distance = {
+    const fullDistance = {
       x: touch.screenX - initTouch.screenX,
       y: touch.screenY - initTouch.screenY,
     };
+    const stepDistance = {
+      x: touch.screenX - lastTouch.screenX,
+      y: touch.screenY - lastTouch.screenY,
+    };
     let initOrientation;
     if (!this._dragOrientation) {
-      if (Math.abs(distance.x) > Math.abs(distance.y)) {
+      if (Math.abs(fullDistance.x) > Math.abs(fullDistance.y)) {
         initOrientation = DragOrientation.Horizonal;
       } else {
         initOrientation = DragOrientation.Portrait;
@@ -147,21 +247,15 @@ export class GestureHandler {
     } else {
       initOrientation = this._dragOrientation;
     }
+    this._lastTouches = [...e.touches];
     this._eventEmitter.emit(this.Events.Drag, {
-      start: {
-        x: initTouch.screenX,
-        y: initTouch.screenY
-      },
-      current: {
-        x: touch.screenX,
-        y: touch.screenY,
-      },
       direction: {
         initOrientation,
-        right: distance.x > 0,
-        bottom: distance.y > 0,
+        right: fullDistance.x > 0,
+        bottom: fullDistance.y > 0,
       },
-      distance,
+      fullDistance,
+      stepDistance,
     });
   }
 
@@ -171,7 +265,11 @@ export class GestureHandler {
 
   onMultiTouchMove(e: TouchEvent) {
     e.preventDefault();
-    if (e.touches?.length < 2) { return; }
+    if (e.touches?.length < 2) {
+      return;
+    } else if (!this._isScaling) {
+      this._isScaling = true;
+    }
     const touch0 = e.touches[0];
     const touch1 = e.touches[1];
     const [initTouch0, initTouch1] = this.initTouches;
@@ -214,8 +312,12 @@ export class GestureHandler {
   }
 
   onTouchEnd = (e: Event) => {
-    this._eventEmitter.emit(this.Events.TouchEnd);
-    this.initData();
+    if (this._isTouchDragging) {
+      this._eventEmitter.emit(this.Events.DragStop);
+    } else if (this._isScaling) {
+      this._eventEmitter.emit(this.Events.ScaleStop);
+    }
+    this.clearTouchData();
     const now = Date.now();
     if (!this._isTapping || typeof this._tuochStartTime !== 'number') {
       return;
@@ -247,14 +349,21 @@ export class GestureHandler {
   }
 
   onTouchCancel = () => {
-    this._eventEmitter.emit(this.Events.TouchCancel);
-    this.initData();
+    if (this._isTouchDragging) {
+      this._eventEmitter.emit(this.Events.DragStop);
+    } else if (this._isScaling) {
+      this._eventEmitter.emit(this.Events.ScaleStop);
+    }
+    this.clearTouchData();
   }
 
-  initData = () => {
+  clearTouchData = () => {
     this.initTouches = [];
     this._initPinchDistance = null;
     this._dragOrientation = null;
+    this._lastTouches = [];
+    this._isTouchDragging = false;
+    this._isScaling = false;
   }
 
   destroy() {

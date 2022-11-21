@@ -140,19 +140,13 @@ export default class Gesture extends ModuleBase {
 
   onGestureEvent = (e: unknown) => {
     const { event, data } = e as { event: string, data: unknown };
-    switch (event) {
-    case GestureEvents.Drag: {
+    switch(event) {
+    case GestureEvents.Drag:
       this.onDrag(data as DragMoveEventData);
       break;
-    }
-    case GestureEvents.TouchEnd: {
+    case GestureEvents.DragStop:
       this.cancelDrag();
       break;
-    }
-    case GestureEvents.TouchCancel: {
-      this.cancelDrag();
-      break;
-    }
     }
   }
 
@@ -181,8 +175,8 @@ export default class Gesture extends ModuleBase {
       return;
     }
 
-    const { distance } = data;
-    let distanceX = distance.x;
+    const { fullDistance } = data;
+    let distanceX = fullDistance.x;
     const siblings = [];
 
     if (distanceX < 0 && this.nextImgData && this.nextImgWrap) {
