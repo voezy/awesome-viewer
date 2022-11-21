@@ -213,10 +213,12 @@
       scrollLeft = (imgEl.clientWidth - zoneEl.clientWidth) / 2;
       scrollTop = (imgEl.clientHeight - zoneEl.clientHeight) / 2;
     }
-    if (imgEl.clientWidth > zoneEl.clientWidth) {
+    const imgWidth = isReverseDirection ? imgEl.clientHeight : imgEl.clientWidth;
+    const imgHeight = isReverseDirection ? imgEl.clientWidth : imgEl.clientHeight;
+    if (imgWidth > zoneEl.clientWidth) {
       zoneEl.scrollLeft = scrollLeft;
     }
-    if (imgEl.clientHeight > zoneEl.clientHeight) {
+    if (imgHeight > zoneEl.clientHeight) {
       zoneEl.scrollTop = scrollTop;
     }
   }
