@@ -106,17 +106,19 @@
   }
 
   function onDrag(data: unknown) {
+    const imgWidth = isReverseDirection ? imgEl.clientHeight : imgEl.clientWidth;
+    const imgHeight = isReverseDirection ? imgEl.clientWidth : imgEl.clientHeight;
     const distX = (data as DragMoveEventData).stepDistance.x;
     const distY = (data as DragMoveEventData).stepDistance.y;
     const dragToLeft = distX > 0;
     const allowDragToLeft = dragToLeft && zoneEl?.scrollLeft - distX >= 0;
-    const allowDragToRight = !dragToLeft && zoneEl.scrollLeft + zoneEl.clientWidth - distX <= imgEl.clientWidth;
+    const allowDragToRight = !dragToLeft && zoneEl.scrollLeft + zoneEl.clientWidth - distX <= imgWidth;
     if (allowDragToLeft || allowDragToRight) {
       zoneEl.scrollLeft -= distX;
     }
     const dragToTop = distY > 0;
     const allowDragToTop = dragToTop && zoneEl?.scrollTop - distY >= 0;
-    const allowDragToBottom = !dragToTop && zoneEl.scrollTop + zoneEl.clientHeight - distX <= imgEl.clientHeight;
+    const allowDragToBottom = !dragToTop && zoneEl.scrollTop + zoneEl.clientHeight - distX <= imgHeight;
     if (allowDragToTop || allowDragToBottom) {
       zoneEl.scrollTop -= distY;
     }
@@ -210,8 +212,10 @@
       scrollLeft = params.customScrollData.scrollLeft || scrollLeft;
       scrollTop = params.customScrollData.scrollTop || scrollTop;
     } else {
-      scrollLeft = (imgEl.clientWidth - zoneEl.clientWidth) / 2;
-      scrollTop = (imgEl.clientHeight - zoneEl.clientHeight) / 2;
+      const halfOffsetLeft = (imgEl.clientWidth - zoneEl.clientWidth) / 2;
+      const halfOffsetTop = (imgEl.clientHeight - zoneEl.clientHeight) / 2;
+      scrollLeft = isReverseDirection ? halfOffsetTop : halfOffsetLeft;
+      scrollTop = isReverseDirection ? halfOffsetLeft : halfOffsetTop;
     }
     const imgWidth = isReverseDirection ? imgEl.clientHeight : imgEl.clientWidth;
     const imgHeight = isReverseDirection ? imgEl.clientWidth : imgEl.clientHeight;
