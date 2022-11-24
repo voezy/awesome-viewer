@@ -32,10 +32,10 @@ export default class ImgViewer extends BasicImgViewer {
       info: InfoModule,
       toolbar: ToolbarModule,
       list: ListModule,
+      gesture: Gesture,
     };
     if (isSupportTouch) {
       defaultModules.pinchZoom = PinchZoomModule;
-      defaultModules.gesture = Gesture;
     } else {
       defaultModules.switchBtn = SwitchBtn;
     }

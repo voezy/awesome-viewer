@@ -14,6 +14,11 @@ interface Point {
   y: number;
 }
 
+interface Distance {
+  x: number;
+  y: number;
+}
+
 export enum GestureEvents {
   Drag = 'Drag',
   Pinch = 'Pinch',
@@ -34,14 +39,8 @@ export interface DragMoveEventData {
     bottom: boolean;
     initOrientation: DragOrientation,
   };
-  fullDistance: {
-    x: number;
-    y: number;
-  },
-  stepDistance: {
-    x: number;
-    y: number;
-  }
+  fullDistance: Distance,
+  stepDistance: Distance
 }
 
 export class GestureHandler {
@@ -49,7 +48,7 @@ export class GestureHandler {
 
   _el: HTMLElement;
 
-  initTouches: Touch[] = [];
+  _initTouches: Touch[] = [];
 
   _lastTouches: Touch[] = [];
 
@@ -163,41 +162,16 @@ export class GestureHandler {
       return;
     }
     e.preventDefault();
-    const fullDistance = {
-      x: e.screenX - this.initMouseEvent.screenX,
-      y: e.screenY - this.initMouseEvent.screenY,
-    };
-    const stepDistance = {
-      x: e.screenX - this.lastMouseMove.screenX,
-      y: e.screenY - this.lastMouseMove.screenY,
-    };
-    let initOrientation;
-    if (!this._dragOrientation) {
-      if (Math.abs(fullDistance.x) > Math.abs(fullDistance.y)) {
-        initOrientation = DragOrientation.Horizonal;
-      } else {
-        initOrientation = DragOrientation.Portrait;
-      }
-      this._dragOrientation = initOrientation;
-    } else {
-      initOrientation = this._dragOrientation;
-    }
     this.lastMouseMove = e;
-    this._eventEmitter.emit(this.Events.Drag, {
-      direction: {
-        initOrientation,
-        right: fullDistance.x > 0,
-        bottom: fullDistance.y > 0,
-      },
-      fullDistance,
-      stepDistance,
-    });
+    const dragData = this.getDragData(e, this.lastMouseMove, this.initMouseEvent);
+    this._eventEmitter.emit(this.Events.Drag, dragData);
   }
 
   clearMouseData = () => {
     this._isMouseDragging = false;
     this.lastMouseMove = null;
     this.initMouseEvent = null;
+    this._dragOrientation = null;
   }
 
   onTouchStart = (e: TouchEvent) => {
@@ -222,23 +196,33 @@ export class GestureHandler {
       this._isTouchDragging = true;
     }
     const touch = e.touches[0];
-    const [initTouch] = this.initTouches;
+    const [initTouch] = this._initTouches;
     const [lastTouch] = this._lastTouches;
     if (!initTouch) {
-      this.initTouches = [touch];
+      this._initTouches = [touch];
       return;
     }
+    this._lastTouches = [...e.touches];
+    const dragData = this.getDragData(touch, lastTouch, initTouch);
+    this._eventEmitter.emit(this.Events.Drag, dragData);
+  }
+
+  getDragData(
+    curEvent: Touch | MouseEvent,
+    lastEvent: Touch | MouseEvent,
+    initEvent: Touch | MouseEvent
+  ): DragMoveEventData {
     const fullDistance = {
-      x: touch.screenX - initTouch.screenX,
-      y: touch.screenY - initTouch.screenY,
+      x: curEvent.screenX - initEvent.screenX,
+      y: curEvent.screenY - initEvent.screenY,
     };
     const stepDistance = {
-      x: touch.screenX - lastTouch.screenX,
-      y: touch.screenY - lastTouch.screenY,
+      x: curEvent.screenX - lastEvent.screenX,
+      y: curEvent.screenY - lastEvent.screenY,
     };
     let initOrientation;
     if (!this._dragOrientation) {
-      if (Math.abs(fullDistance.x) > Math.abs(fullDistance.y)) {
+      if (Math.abs(fullDistance.x) >= Math.abs(fullDistance.y)) {
         initOrientation = DragOrientation.Horizonal;
       } else {
         initOrientation = DragOrientation.Portrait;
@@ -247,8 +231,7 @@ export class GestureHandler {
     } else {
       initOrientation = this._dragOrientation;
     }
-    this._lastTouches = [...e.touches];
-    this._eventEmitter.emit(this.Events.Drag, {
+    return {
       direction: {
         initOrientation,
         right: fullDistance.x > 0,
@@ -256,7 +239,7 @@ export class GestureHandler {
       },
       fullDistance,
       stepDistance,
-    });
+    };
   }
 
   getDistance(pointA: Point, pointB: Point) {
@@ -272,9 +255,9 @@ export class GestureHandler {
     }
     const touch0 = e.touches[0];
     const touch1 = e.touches[1];
-    const [initTouch0, initTouch1] = this.initTouches;
+    const [initTouch0, initTouch1] = this._initTouches;
     if (!initTouch0 || !initTouch1) {
-      this.initTouches = [touch0, touch1];
+      this._initTouches = [touch0, touch1];
       return;
     } else if (typeof this._initPinchDistance !== 'number') {
       this._initPinchDistance = this.getDistance({
@@ -358,7 +341,7 @@ export class GestureHandler {
   }
 
   clearTouchData = () => {
-    this.initTouches = [];
+    this._initTouches = [];
     this._initPinchDistance = null;
     this._dragOrientation = null;
     this._lastTouches = [];
