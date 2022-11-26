@@ -33,7 +33,14 @@
 
   $: isReverseDirection = rotateDeg  === 90 || rotateDeg === 270;
   $: {
-    if (typeof scaleRate !== 'undefined' || typeof rotateDeg !== 'undefined') {
+    if (typeof scaleRate !== 'undefined') {
+      updateVisualSize();
+    }
+  }
+
+  $: {
+    if (typeof rotateDeg !== 'undefined') {
+      initImgSize();
       updateVisualSize();
     }
   }
@@ -66,6 +73,9 @@
     gestureHandler =  new GestureHandler({
       el: zoneEl,
       preventDefault: () => {
+        if (isReverseDirection && (zoneEl.clientHeight < imgEl.clientWidth || zoneEl.clientWidth < imgEl.clientHeight)) {
+          return false;
+        }
         return scaleRate <= 1;
       },
     });
@@ -140,8 +150,8 @@
   function initImgSize() {
     if (!imgEl || !zoneEl) { return; }
     const basicSize = getBasicSize({
-      imgWidth: imgEl.naturalWidth,
-      imgHeight: imgEl.naturalHeight,
+      imgWidth: isReverseDirection ? imgEl.naturalHeight : imgEl.naturalWidth,
+      imgHeight: isReverseDirection ? imgEl.naturalWidth : imgEl.naturalHeight,
       zoneWidth: zoneEl.clientWidth,
       zoneHeight: zoneEl.clientHeight,
     });
@@ -158,12 +168,9 @@
     if (!scaleRate || scaleRate < 0) {
       visualWidth = basicWidth;
       visualHeight = basicHeight;
-    } else if (!rotateDeg) {
+    } else {
       visualWidth = basicWidth as number * scaleRate;
       visualHeight = basicHeight as number * scaleRate;
-    } else {
-      visualWidth = isReverseDirection ? basicHeight as number * scaleRate : basicWidth as number * scaleRate;
-      visualHeight = isReverseDirection ? basicWidth as number * scaleRate : basicHeight as number * scaleRate;
     }
 
     let customScrollData;
