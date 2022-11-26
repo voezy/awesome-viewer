@@ -162,8 +162,8 @@ export class GestureHandler {
       return;
     }
     e.preventDefault();
-    this.lastMouseMove = e;
     const dragData = this.getDragData(e, this.lastMouseMove, this.initMouseEvent);
+    this.lastMouseMove = e;
     this._eventEmitter.emit(this.Events.Drag, dragData);
   }
 
