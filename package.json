@@ -1,8 +1,10 @@
 {
   "name": "awesome-viewer",
+  "version": "0.0.1-beta.0",
   "svelte": "src/index.js",
   "module": "dist/index.mjs",
   "main": "dist/index.umd.js",
+  "typings": "dist/typings/index.d.ts",
   "scripts": {
     "build": "npm run lint && rimraf dist && rollup --config build/rollup.config.js",
     "prepublishOnly": "npm run build",
