@@ -1,4 +1,4 @@
-import Events from 'events';
+import * as Events from 'events';
 import { isSupportTouch } from './browser';
 
 interface GestureHandlerBaseOptions {
@@ -56,7 +56,7 @@ export class GestureHandler {
 
   lastMouseMove: MouseEvent | null = null;
 
-  _eventEmitter = new Events();
+  _eventEmitter = new Events.EventEmitter();
 
   _baseScaleRate = 1;
 
@@ -106,8 +106,8 @@ export class GestureHandler {
   addEvents() {
     if (!isSupportTouch) {
       this._el.addEventListener('mousedown', this.onMouseDown);
-      this._el.addEventListener('mouseup', this.onMouseUp);
-      this._el.addEventListener('mouseleave', this.onMouseLeave);
+      this._el.addEventListener('mouseup', this.onMouseCancel);
+      this._el.addEventListener('mouseleave', this.onMouseCancel);
       this._el.addEventListener('mousemove', this.onMouseMove);
     } else  {
       this._el.addEventListener('touchstart', this.onTouchStart);
@@ -120,8 +120,8 @@ export class GestureHandler {
   removeEvents() {
     if (!isSupportTouch) {
       this._el.removeEventListener('mousedown', this.onMouseDown);
-      this._el.removeEventListener('mouseup', this.onMouseUp);
-      this._el.removeEventListener('mouseleave', this.onMouseLeave);
+      this._el.removeEventListener('mouseup', this.onMouseCancel);
+      this._el.removeEventListener('mouseleave', this.onMouseCancel);
       this._el.removeEventListener('mousemove', this.onMouseMove);
     } else  {
       this._el.removeEventListener('touchstart', this.onTouchStart);
@@ -137,16 +137,7 @@ export class GestureHandler {
     this.initMouseEvent = e;
   }
 
-  onMouseUp = () => {
-    if (!this._isMouseDragging) {
-      return;
-    } else {
-      this._eventEmitter.emit(this.Events.DragStop);
-    }
-    this.clearMouseData();
-  }
-
-  onMouseLeave = () => {
+  onMouseCancel = () => {
     if (!this._isMouseDragging) {
       return;
     } else {

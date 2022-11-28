@@ -3,6 +3,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import autoPreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from 'rollup-plugin-css-only';
+import scss from 'rollup-plugin-scss'
 import pkg from './package.json';
 
 
@@ -14,13 +15,23 @@ const name = pkg.name
 export default {
 	input: 'src/index.ts',
 	output: [
-		{ file: pkg.module, 'format': 'es', sourcemap: true },
-		{ file: pkg.main, 'format': 'umd', name, sourcemap: true }
+		{
+      file: pkg.module,
+      format: 'es',
+      sourcemap: true,
+    },
+		{
+      file: pkg.main,
+      format: 'umd',
+      name,
+      sourcemap: true,
+    }
 	],
 	plugins: [
 		svelte({
       preprocess: autoPreprocess()
     }),
+    scss(),
 		css({ output: 'bundle.css' }),
     typescript({
       sourceMap: !process.env.production

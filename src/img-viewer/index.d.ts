@@ -54,7 +54,7 @@ export interface ZoneState {
   [ZoneStateEnum.Src]: StateValue<string>;
   [ZoneStateEnum.ScaleRate]: StateValue<number>;
   [ZoneStateEnum.RotateDeg]: StateValue<number>;
-  [ZoneStateEnum.ScaleCenter]: StateValue<TapEventCenterData, null>;
+  [ZoneStateEnum.ScaleCenter]: StateValue<TapEventCenterData | null>;
 }
 
 

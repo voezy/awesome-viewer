@@ -1,4 +1,4 @@
-import Events from 'events';
+import * as Events from 'events';
 import { createState } from './store';
 import ImgZone from './components/img-zone.svelte';
 import { Events as ImgEvents } from './events';
@@ -33,7 +33,7 @@ export default class BasicImgViewer {
 
   _imgZone: ImgZone | null = null;
 
-  _eventEmitter: Events | null = new Events();
+  _eventEmitter: Events | null = new Events.EventEmitter();
 
   store: ImgViewerStore;
 
@@ -182,6 +182,7 @@ export default class BasicImgViewer {
       const list = this.store.rootState.list.value;
       const index = list?.length > 0 ? list.findIndex((item) => item.src === src) : 0;
       this.store.rootState.curImgIndex.set(index);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       this._imgZone?.init();
     }
     if (isArray(list)) {
@@ -198,6 +199,7 @@ export default class BasicImgViewer {
 
   invokeZone = (method: string, ...args: unknown[]) => {
     if (this._imgZone && typeof this._imgZone[method] === 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       this._imgZone[method](...args);
     }
   }

@@ -50,6 +50,8 @@ export default class ImgViewer extends BasicImgViewer {
 
   show() {
     this.store.modules.modalContainer.visible?.set(true);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     this._imgZone?.init();
   }
 

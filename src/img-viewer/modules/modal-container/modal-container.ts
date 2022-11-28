@@ -89,7 +89,8 @@ export default class ModalContainer extends ModuleBase {
   }
 
   getModalContainer(): HTMLElement | null {
-    return this.modal ? this.modal.getContainer() as HTMLElement : null;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return (this.modal?.getContainer() as HTMLElement) || null;
   }
 
   getZoneEl() {
@@ -150,6 +151,7 @@ export default class ModalContainer extends ModuleBase {
 
   setHidingProgress(tweened = false) {
     const progress = 1 - this.swipeClosingProgress;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     this.modal?.setHidingProgress(progress);
     if (tweened) {
       this.zoneState.scaleRate.tweened(progress < 0.5 ? 0.5 : progress);
