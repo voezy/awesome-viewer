@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import ImgViewer from '../../src/img-viewer/index';
-  import list from './list.ts';
+  import { ImgViewer } from '../../src/index';
+  import list from './list';
 
   export let src = '';
   let imgViewer: ImgViewer;

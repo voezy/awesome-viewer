@@ -1,2 +1,1 @@
-import ImgViewer from './img-viewer/index';
-export default ImgViewer;
+export { default as ImgViewer } from './img-viewer/index';
