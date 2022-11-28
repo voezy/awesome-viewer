@@ -16,7 +16,7 @@ import type {
   ImgViewerStore,
   Unsubscriber,
   ImgItem,
-} from './index.d';
+} from './image-viewer';
 import type { StateValue } from './store';
 import './assets/scss/basic-image-viewer.scss';
 

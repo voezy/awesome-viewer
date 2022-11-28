@@ -1,7 +1,7 @@
 import { get } from 'svelte/store';
 import { tweened } from 'svelte/motion';
 import type { Tweened } from 'svelte/motion';
-import type { TweenedOptions } from '../index.d';
+import type { TweenedOptions } from '../image-viewer';
 
 type OnUpdate = (value: number) => void;
 type OnFinish = (value: number) => void;

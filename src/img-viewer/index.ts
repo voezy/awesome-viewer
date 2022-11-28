@@ -12,7 +12,7 @@ import { isString } from '../assets/utils/type';
 import type {
   BasicImgViewerOptions,
   NewableModule
-} from './index.d';
+} from './image-viewer';
 
 interface DefaultModules {
   [key: string]: NewableModule

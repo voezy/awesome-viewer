@@ -3,7 +3,7 @@ import { GestureEvents } from '../../../assets/utils/gesture';
 import type {
   TapEventCenterData,
   PinchEventData,
-} from '../../index.d';
+} from '../../image-viewer';
 
 export default class ModalContainer extends ModuleBase {
   lastCenter: TapEventCenterData | null = null;

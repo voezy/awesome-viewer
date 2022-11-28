@@ -6,7 +6,7 @@ import type { DragMoveEventData } from '../../../assets/utils/gesture';
 import type {
   ModuleOptions,
   BasicImgViewerOptions,
-} from '../../index.d';
+} from '../../image-viewer';
 
 interface ModalState {
   visible: StateValue<boolean>,

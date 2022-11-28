@@ -3,7 +3,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import autoPreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from 'rollup-plugin-css-only';
-import scss from 'rollup-plugin-scss'
+import scss from 'rollup-plugin-scss';
 import pkg from './package.json';
 
 
@@ -34,6 +34,7 @@ export default {
     scss(),
 		css({ output: 'bundle.css' }),
     typescript({
+      tsconfig: './tsconfig.json',
       sourceMap: !process.env.production
     }),
 		resolve()

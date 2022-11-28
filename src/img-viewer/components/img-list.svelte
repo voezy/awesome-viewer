@@ -49,7 +49,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import ImgDrawer from './img-drawer.svelte';
-  import type { ImgItem } from '../index.d';
+  import type { ImgItem } from '../image-viewer';
 
   export let list: ImgItem[] = [];
   export let anchor = 'left';

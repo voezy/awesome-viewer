@@ -2,7 +2,7 @@ import ModuleBase from '../module-base';
 import ImgList from '../../components/img-list.svelte';
 import { isSupportTouch } from '../../../assets/utils/browser';
 import type { StateValue } from '../../store';
-import type { ImgItem } from '../../index.d';
+import type { ImgItem } from '../../image-viewer';
 
 interface ListState {
   visible: StateValue<boolean>,

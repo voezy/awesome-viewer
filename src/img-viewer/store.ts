@@ -1,11 +1,11 @@
 import { writable, get } from 'svelte/store';
 import { tweened } from 'svelte/motion';
 import { cubicOut } from 'svelte/easing';
-import type { TweenedOptions } from './index.d';
+import type { TweenedOptions } from './image-viewer';
 import type { Tweened } from 'svelte/motion';
 
 import type { Writable } from 'svelte/store';
-import type { Unsubscriber } from './index.d';
+import type { Unsubscriber } from './image-viewer';
 
 export class StateValue<T> {
   _value: Writable<T>;

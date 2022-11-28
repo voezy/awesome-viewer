@@ -6,7 +6,7 @@ import type { DragMoveEventData } from '../../../assets/utils/gesture';
 import type TweenedMotion from '../../motion/tweened';
 import type {
   ModuleOptions,
-} from '../../index.d';
+} from '../../image-viewer';
 import './gesture.scss';
 
 const NO_SRC_IMG_CLASS = 'as-img-viewer-gesture-img--no-src';

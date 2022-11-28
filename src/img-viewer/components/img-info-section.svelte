@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { InfoSection } from '../index.d';
+  import type { InfoSection } from '../image-viewer';
   export let section: InfoSection;
 </script>
 

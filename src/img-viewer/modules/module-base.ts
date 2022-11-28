@@ -1,7 +1,7 @@
 import type {
   Module,
   ModuleOptions,
-} from '../index.d';
+} from '../image-viewer';
 import type EventEmitter from 'events';
 
 export default class ModuleBase implements Module {

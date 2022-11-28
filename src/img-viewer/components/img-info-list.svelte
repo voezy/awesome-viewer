@@ -1,6 +1,6 @@
 <script lang="ts">
   import InfoSectionComp from './img-info-section.svelte';
-  import type { InfoSection } from '../index.d';
+  import type { InfoSection } from '../image-viewer';
   export let list: InfoSection[] = [];
 </script>
 

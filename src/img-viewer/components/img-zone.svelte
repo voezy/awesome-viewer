@@ -3,7 +3,7 @@
   import { GestureHandler } from '../../assets/utils/gesture';
   import { getBasicSize } from '../assets/utils/limitation';
   import { isSupportTouch } from '../../assets/utils/browser';
-  import type { TapEventCenterData } from '../index.d';
+  import type { TapEventCenterData } from '../image-viewer';
   import type { DragMoveEventData } from '../../assets/utils/gesture';
 
   export let src = '';
