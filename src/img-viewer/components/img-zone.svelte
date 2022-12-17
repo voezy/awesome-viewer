@@ -236,6 +236,7 @@
 
   function onLoaded() {
     isImgLoaded = true;
+    isImgError = false
     initImgData();
     dispatch('imgData', {
       width: imgEl.naturalWidth,
@@ -248,12 +249,12 @@
   }
 </script>
 
-<div bind:this={zoneEl} class="as-img-viewer-zone">
+<div bind:this={zoneEl} class={`as-img-viewer-zone ${ !isSupportTouch ? 'as-img-viewer-zone--not-touch' : '' }`}>
   {#if src }
     <div
       class="as-img-viewer-zone__img-wrap"
-      style:width={ visualWidth ? `${visualWidth}px` : '' }
-      style:height={ visualHeight ? `${visualHeight}px` : '' }
+      style:width={ visualWidth ? `${visualWidth}px` : '95%' }
+      style:height={ visualHeight ? `${visualHeight}px` : '95%' }
       style:opacity={ isImgLoaded ? 1 : 0 }
       style:display={ isImgError ? 'none' : 'inline-block' }
     >
@@ -287,6 +288,9 @@
     overflow: auto;
     white-space: nowrap;
     user-select: none;
+    &--not-touch {
+      @include scrollbar();
+    }
   }
   .as-img-viewer-zone__height {
     display: inline-block;
@@ -312,6 +316,7 @@
 
     width: 30px;
     height: 30px;
+    line-height: 30px;
     font-size: 30px;
     color: rgba(#fff, 0.7);
     animation: 1s as-loading-spin ease-in-out infinite;

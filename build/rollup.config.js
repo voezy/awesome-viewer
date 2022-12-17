@@ -5,7 +5,10 @@ const autoPreprocess = require('svelte-preprocess');
 const typescript = require('@rollup/plugin-typescript');
 const scss = require('rollup-plugin-scss');
 const terser = require("@rollup/plugin-terser");
+const commonjs = require('@rollup/plugin-commonjs');
 const pkg = require('../package.json');
+const copy = require('rollup-plugin-copy');
+const image = require('@rollup/plugin-image');
 
 const name = pkg.name
 	.replace(/^(@\S+\/)?(svelte-)?(\S+)/, '$3')
@@ -38,6 +41,14 @@ module.exports = {
       sourceMap: !process.env.production
     }),
     terser(),
-		resolve(),
+    commonjs(),
+    image(),
+    copy({
+      targets: [{
+        src: 'src/assets/icon/fonts/**/*',
+        dest: 'dist/fonts'
+      }]
+    }),
+		resolve()
 	]
 };

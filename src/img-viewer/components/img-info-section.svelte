@@ -81,7 +81,6 @@
   .as-img-viewer-info-section__value-ico {
     width: 14px;
     height: 14px;
-    margin-bottom: -2px;
-    vertical-align: top;
+    vertical-align: middle;
   }
 </style>

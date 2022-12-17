@@ -26,3 +26,15 @@
 @mixin as-fonts {
   font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif, "Apple Color Emoji";
 }
+
+@mixin scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: rgba(#fff, 0.6);
+    box-shadow: 0 0 6px rgba(#fff, .7);
+  }
+}

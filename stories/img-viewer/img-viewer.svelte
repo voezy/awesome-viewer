@@ -5,11 +5,9 @@
 
   export let src = '';
   let imgViewer: ImgViewer;
-  let container: HTMLElement;
 
   onMount(function() {
     imgViewer = new ImgViewer({
-      el: container,
       imgState: {
         src,
         list,
@@ -30,6 +28,4 @@
   class="c-img-viewer-demo"
 >
   <button on:click={toggleVisible}>toggle visible</button>
-  <div bind:this={container}>
-  </div>
 </div>

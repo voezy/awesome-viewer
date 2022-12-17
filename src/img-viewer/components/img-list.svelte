@@ -18,6 +18,7 @@
   >
     {#if list && list.length }
       <div
+        bind:this={listEl}
         class="as-img-viewer-list"
         class:as-img-viewer-list--bottom={ anchor === 'bottom' }
         class:as-img-viewer-list--left={ anchor === 'left' }
@@ -26,7 +27,7 @@
           <div class="as-img-viewer-list__item" on:click={ () => onClickImg(i) }>
             <div
               class="as-img-viewer-list__item__img"
-              style:background-image={`url(${item.thumbnail || item.src})`}
+              data-src={item.thumbnail || item.src}
             ></div>
           </div>
         {/each}
@@ -47,7 +48,7 @@
 </div>
 
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
   import ImgDrawer from './img-drawer.svelte';
   import type { ImgItem } from '../image-viewer';
 
@@ -55,8 +56,39 @@
   export let anchor = 'left';
   export let zIndex: number | null;
   export let visible = false;
-
+  let listEl: HTMLElement
   const dispatch = createEventDispatcher();
+  let observer: IntersectionObserver
+
+  onMount(() => {
+    initIntersectionObserver();
+  })
+
+  onDestroy(() => {
+    removeIntersectionObserver();
+  })
+
+  function initIntersectionObserver() {
+    observer = new IntersectionObserver(onIntersecting, {});
+    listEl && [...listEl.children].forEach((item) => {
+      observer.observe(item)
+    });
+  }
+
+  function removeIntersectionObserver() {
+    observer.disconnect()
+  }
+
+  function onIntersecting(changes: IntersectionObserverEntry[]) {
+    changes.forEach((entry) => {
+      const { isIntersecting, target } = entry;
+      const el: HTMLElement = entry.target.children[0] as HTMLElement;
+      if (isIntersecting) {
+        el.style.backgroundImage = `url(${el.dataset.src})`;
+        observer.unobserve(target);
+      }
+    })
+  }
 
   function onClickOpen() {
     visible = true;
@@ -75,6 +107,8 @@
 
 <style lang="scss">
   @import '../../assets/styles/reset.scss';
+  @import '../../assets//styles/mixins.scss';
+
   .as-img-viewer-list__wrap {
     &:hover {
       .as-img-viewer-list__close-btn {
@@ -163,6 +197,7 @@
     height: 100%;
     overflow: auto;
     min-width: 120px;
+    @include scrollbar();
   }
 
   .as-img-viewer-list__close-btn {

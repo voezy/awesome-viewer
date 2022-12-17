@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import '../../assets/fonts/remixicon.css';
+  import '../../assets/icon/remixicon.css';
   export let scaleRate = 1;
   export let allowZoomIn = true;
   export let allowZoomOut = true;

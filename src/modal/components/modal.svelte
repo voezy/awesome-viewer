@@ -2,7 +2,7 @@
   import { createEventDispatcher, onDestroy } from 'svelte';
   import './modal.scss';
   import { manager } from '../manager';
-  import '../../assets/fonts/remixicon.css';
+  import '../../assets/icon/remixicon.css';
   export let visible = false;
   export let closeBtnEnabled = true;
   let el: HTMLElement;

@@ -38,7 +38,6 @@ export interface ImgViewerState {
 }
 
 export interface BasicImgViewerOptions {
-  el: HTMLElement | string;
   imgState?: ImgViewerState;
   moduleOptions?: { [key: string]: unknown }
 }

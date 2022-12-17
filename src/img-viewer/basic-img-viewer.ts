@@ -93,12 +93,12 @@ export default class BasicImgViewer {
       container = el;
     } else if (typeof el === 'string') {
       container = document.querySelector(el);
+    } else {
+      container = document.body;
     }
     if (container instanceof HTMLElement) {
       this._container = container;
       this._initLayers();
-    } else {
-      console.error('Container element not found');
     }
   }
 
@@ -176,7 +176,8 @@ export default class BasicImgViewer {
   updateState(newViewerState: ImgViewerState) {
     if (!newViewerState) { return; }
     const zoneState = this.store.zoneState;
-    const { src, description, list } = newViewerState;
+    const { description, list } = newViewerState;
+    const src = newViewerState.src || list?.[0].src || '';
     if (src !== zoneState.src.value) {
       src && zoneState.src.set(src);
       const list = this.store.rootState.list.value;

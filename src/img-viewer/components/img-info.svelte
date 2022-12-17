@@ -1,6 +1,8 @@
 <script lang="ts">
   import ImgDrawer from './img-drawer.svelte';
   import ImgInfoList from './img-info-list.svelte';
+  import lineSvg from '../assets/img/remixicon-line.svg';
+  import gitlabSvg from '../assets/img/github-line.svg';
 
   export let anchor = 'left';
   export let width: number | null = 0;
@@ -35,7 +37,7 @@
           type: 'link',
           value: 'Remix Icon',
           link: 'http://remixicon.com/',
-          ico: require('../assets/img/remixicon-line.svg'),
+          ico: lineSvg,
         },
       ],
     },
@@ -47,7 +49,7 @@
           type: 'link',
           value: 'Awewome viewer',
           link: 'https://github.com/voezy/awesome-viewer',
-          ico: require('../assets/img/github-line.svg'),
+          ico: gitlabSvg
         },
       ],
     },
