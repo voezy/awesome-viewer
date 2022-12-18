@@ -54,11 +54,14 @@ export default class BasicImgViewer {
         src: createState(''),
         scaleRate: createState(1),
         rotateDeg: createState(0),
-        scaleCenter: createState(null),
+        scaleCenter: createState({
+          x: 0,
+          y: 0,
+        }),
       },
       imgData: {
-        width: createState(null),
-        height: createState(null),
+        width: createState(0),
+        height: createState(0),
       },
       rootState: {
         layerIndex: createState(1),

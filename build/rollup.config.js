@@ -10,6 +10,7 @@ const pkg = require('../package.json');
 const copy = require('rollup-plugin-copy');
 const image = require('@rollup/plugin-image');
 
+const production = !process.env.ROLLUP_WATCH;
 const name = pkg.name
 	.replace(/^(@\S+\/)?(svelte-)?(\S+)/, '$3')
 	.replace(/^\w/, m => m.toUpperCase())
@@ -21,16 +22,24 @@ module.exports = {
 		{
       file: pkg.module,
       format: 'es',
+      sourcemap: !production,
     },
 		{
       file: pkg.main,
       format: 'umd',
       name,
+      sourcemap: !production,
     }
 	],
 	plugins: [
 		svelte({
-      preprocess: autoPreprocess()
+      preprocess: autoPreprocess({
+        sourceMap: !production
+      }),
+      compilerOptions: {
+        dev: !production,
+        enableSourcemap: !production
+      }
     }),
     scss({
       outputStyle: 'compressed',
@@ -38,7 +47,8 @@ module.exports = {
     }),
     typescript({
       tsconfig: path.join(__dirname, '../tsconfig.json'),
-      sourceMap: !process.env.production
+      sourceMap: !production,
+      inlineSources: !production
     }),
     terser(),
     commonjs(),

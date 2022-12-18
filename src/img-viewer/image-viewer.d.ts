@@ -38,6 +38,7 @@ export interface ImgViewerState {
 }
 
 export interface BasicImgViewerOptions {
+  el?: HTMLElement | string;
   imgState?: ImgViewerState;
   moduleOptions?: { [key: string]: unknown }
 }
@@ -53,7 +54,7 @@ export interface ZoneState {
   [ZoneStateEnum.Src]: StateValue<string>;
   [ZoneStateEnum.ScaleRate]: StateValue<number>;
   [ZoneStateEnum.RotateDeg]: StateValue<number>;
-  [ZoneStateEnum.ScaleCenter]: StateValue<TapEventCenterData | null>;
+  [ZoneStateEnum.ScaleCenter]: StateValue<TapEventCenterData>;
 }
 
 
@@ -62,8 +63,8 @@ export interface ModuleState {
 }
 
 export interface ImgData {
-  width: StateValue<number | null>,
-  height: StateValue<number | null>,
+  width: StateValue<number>,
+  height: StateValue<number>,
 }
 
 export interface RootState {
