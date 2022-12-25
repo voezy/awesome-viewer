@@ -8,7 +8,6 @@ import { isSupportTouch } from '../assets/utils/browser';
 import { isArray, isString } from '../assets/utils/type';
 import type {
   BasicImgViewerOptions,
-  ImgViewerState,
   NewableModule,
   Module,
   ZoneStateEnum,
@@ -127,10 +126,9 @@ export default class BasicImgViewer {
   }
 
   _initStore() {
-    const optionsState = this._options.imgState || {} as ImgViewerState;
     const state = this.store.zoneState;
 
-    this.updateState(optionsState);
+    this.updateState(this._options);
     for (const key in state) {
       const targetState = state[key as ZoneStateEnum] as StateValue<unknown>;
       const unsubscriber = targetState?.subscribe((value: unknown) => {
@@ -176,11 +174,13 @@ export default class BasicImgViewer {
     this.on(this.Events.Module_SwitchToIndex, this.onSwitchToIndex);
   }
 
-  updateState(newViewerState: ImgViewerState) {
-    if (!newViewerState) { return; }
+  updateState(newState: BasicImgViewerOptions) {
+    if (!newState) { return; }
+    const list = newState.imgList || [];
     const zoneState = this.store.zoneState;
-    const { description, list } = newViewerState;
-    const src = newViewerState.src || list?.[0].src || '';
+    const firstItem = list?.[0];
+    const src = firstItem?.src || '';
+    const description = firstItem?.desc || '';
     if (src !== zoneState.src.value) {
       src && zoneState.src.set(src);
       const list = this.store.rootState.list.value;
@@ -190,10 +190,10 @@ export default class BasicImgViewer {
       this._imgZone?.init();
     }
     if (isArray(list)) {
-      this.store.rootState.list.set(list as ImgItem[]);
+      this.store.rootState.list.set(list);
     }
     if (isString(description)) {
-      this.store.rootState.description.set(description as string);
+      this.store.rootState.description.set(description);
     }
   }
 

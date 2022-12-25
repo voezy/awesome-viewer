@@ -1,17 +1,13 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { ImgViewer } from '../../src/index';
-  import list from './list';
 
-  export let src = '';
+  export let list: never[] = []
   let imgViewer: ImgViewer;
 
   onMount(function() {
     imgViewer = new ImgViewer({
-      imgState: {
-        src,
-        list,
-      }
+      imgList: list
     });
   });
 

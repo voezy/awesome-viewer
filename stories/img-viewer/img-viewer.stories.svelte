@@ -1,6 +1,7 @@
 <script>
   import { Meta, Template, Story } from "@storybook/addon-svelte-csf";
   import ImgViewer from './img-viewer.svelte';
+  import list from './list';
 </script>
 
 <svelte:head>
@@ -24,6 +25,6 @@
 <Story
   name="basic"
   args={{
-    src: 'https://via.placeholder.com/4000x2000',
+    list,
   }}
 />

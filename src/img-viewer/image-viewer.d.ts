@@ -30,17 +30,10 @@ export interface ImgItem {
   thumbnail?: string;
 }
 
-export interface ImgViewerState {
-  [key: string]: unknown,
-  src?: string;
-  description?: string;
-  list?: ImgItem[];
-}
 
 export interface BasicImgViewerOptions {
   el?: HTMLElement | string;
-  imgState?: ImgViewerState;
-  moduleOptions?: { [key: string]: unknown }
+  imgList: ImgItem[];
 }
 
 export enum ZoneStateEnum {

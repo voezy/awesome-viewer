@@ -8,7 +8,6 @@ import ListModule from './modules/list/list';
 import Gesture from './modules/gesture/gesture';
 import SwitchBtn from './modules/switch-btn/switch-btn';
 import { isSupportTouch } from '../assets/utils/browser';
-import { isString } from '../assets/utils/type';
 import type {
   BasicImgViewerOptions,
   NewableModule
@@ -48,7 +47,14 @@ export default class ImgViewer extends BasicImgViewer {
     }
   }
 
-  show() {
+  /**
+   * Show image viewer
+   * @param index target image item index in the array
+   */
+  show(index?: number) {
+    if (typeof index === 'number' && index > -1 && index <= this.store.rootState.list.value.length - 1) {
+      this._eventEmitter?.emit(this.Events.Module_SwitchToIndex, { index });
+    }
     this.store.modules.modalContainer.visible?.set(true);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -57,11 +63,5 @@ export default class ImgViewer extends BasicImgViewer {
 
   hide() {
     this.store.modules.modalContainer.visible?.set(false);
-  }
-
-  updateDesc(desc: string) {
-    if (isString(desc)) {
-      this.store.rootState.description.set(desc);
-    }
   }
 }

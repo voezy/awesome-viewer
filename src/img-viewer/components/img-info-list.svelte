@@ -25,6 +25,7 @@
     @include as-reset-list();
   }
   .as-img-viewer-info__item {
+    display: block;
     &:not(:first-child) {
       margin-top: 12px;
     }
