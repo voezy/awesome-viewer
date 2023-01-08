@@ -1,7 +1,9 @@
 {
   "name": "@voezy-kit/awesome-viewer",
-  "version": "0.0.1-beta.0",
-  "keywords": ["image viewer"],
+  "version": "0.0.1-beta.1",
+  "keywords": [
+    "image viewer"
+  ],
   "svelte": "src/index.js",
   "module": "dist/index.mjs",
   "main": "dist/index.umd.js",
