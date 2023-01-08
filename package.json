@@ -62,5 +62,11 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/voezy/awesome-viewer"
+  },
+  "author": "voezy",
+  "license": "MIT"
 }
