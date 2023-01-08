@@ -1,10 +1,14 @@
 # Awesome Viewer
 ## Install
+```
+npm i -S @voezy-kit/awesome-viewer
+```
+
 ## Usage
 ### Initialize
 ```javascript
-import "awesome-viewer/dist/bundle.css";
-import { ImgViewer } from "awesome-viewer";
+import "@voezy-kit/awesome-viewer/dist/bundle.css";
+import { ImgViewer } from "@voezy-kit/awesome-viewer";
 
 const imgViewer = new ImgViewer({
   imgList: [

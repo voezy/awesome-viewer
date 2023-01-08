@@ -1,5 +1,5 @@
 {
-  "name": "awesome-viewer",
+  "name": "@voezy-kit/awesome-viewer",
   "version": "0.0.1-beta.0",
   "keywords": ["image viewer"],
   "svelte": "src/index.js",
