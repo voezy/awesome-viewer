@@ -17,7 +17,9 @@
     "prepublishOnly": "npm run build",
     "lint": "eslint './src/**/*.{js,ts,svelte}'",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "demo-serve": "cross-env NODE_ENV=dev rollup --watch --config build/rollup.config.demo.js",
+    "demo-build": "cross-env NODE_ENV=build rollup --config build/rollup.config.demo.js"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",
@@ -37,6 +39,7 @@
     "@typescript-eslint/parser": "^5.18.0",
     "babel-loader": "^8.2.4",
     "commitizen": "^4.2.4",
+    "cross-env": "^7.0.3",
     "css-loader": "^5.2.7",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.32.0",
@@ -47,6 +50,7 @@
     "rollup": "^3.5.0",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-scss": "^4.0.0",
+    "rollup-plugin-serve": "^2.0.2",
     "rollup-plugin-svelte": "^7.0.0",
     "sass": "^1.50.1",
     "sass-loader": "^10.1.1",
