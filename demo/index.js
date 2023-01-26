@@ -1,5 +1,4 @@
 import { ImgViewer } from '../dist/index.mjs';
-import './index.scss'
 import '../dist/bundle.css';
 
 let imgViewer = null
